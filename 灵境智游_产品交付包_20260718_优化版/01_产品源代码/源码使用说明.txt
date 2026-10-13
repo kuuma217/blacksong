@@ -1,0 +1,87 @@
+灵境智游产品源代码（VS Code）
+===================================
+
+一、开发环境
+-----------
+1. 双击"灵境智游.code-workspace"即可使用 VS Code 打开工程。
+2. 开发环境要求：Node.js 20.19 或更高版本、npm、最新版 Edge 或 Chrome。
+3. 首次运行：在 VS Code 终端执行 npm install，然后执行 npm run dev。
+4. 生产构建：执行 npm run build，输出目录为 dist。
+5. 源码副本未包含 node_modules，请通过 npm install 按 package-lock.json 恢复依赖。
+6. scripts/Launcher.cs 为 Windows 本地启动程序源码；可执行版本位于交付包的"02_Windows可执行程序"。
+
+二、管理后台演示账号
+-----------
+账号：admin
+密码：lingjing2026
+
+三、核心功能模块
+-----------
+
+  1. AI 智能体对话（src/data/agentConfig.js + src/components/AssistantPanel.jsx）
+     · 基于通义千问大模型，支持语义理解、多轮对话、工具调用
+     · 5 位数字人角色各有独立人设提示词
+     · 未配置 API Key 时自动降级到本地知识库模式
+     · 环境变量：VITE_QWEN_API_KEY、VITE_QWEN_API_URL、VITE_QWEN_MODEL
+
+  2. 拍照打卡（src/utils/photoSynthesizer.js + src/components/MissionPanel.jsx）
+     · 4 个打卡点：灵山照壁、九龙灌浴、梵宫、灵山大佛
+     · 使用 HTML5 Canvas 本地合成打卡照片（无需后端）
+     · 合成结果可下载保存
+     · 完成打卡可解锁数字人装扮
+
+  3. 数字人导游（src/data/guides.js）
+     · 小灵（儿童）、灵若（普通游客）、行远（文化爱好者）、冬灵（银发）、外灵（国际游客）
+     · 各有独立语音参数、情感表达和说话风格
+
+  4. 个性化路线（src/data/routes.js + src/components/RoutePanel.jsx）
+     · 根据游客画像（年龄、兴趣、体力）智能推荐路线
+     · 支持拍照路线、亲子路线、银发路线等
+
+  5. 运营管理后台（src/components/AdminDashboard.jsx）
+     · 游客数据分析、知识库管理、数字人管理、模型设置
+
+四、智能体配置说明
+-----------
+
+  1. 复制环境变量文件：
+     cp .env.example .env.local
+
+  2. 编辑 .env.local，填入通义千问 API Key：
+     VITE_QWEN_API_KEY=sk-你的密钥
+
+  3. API Key 获取方式：https://bailian.console.aliyun.com/
+
+  4. 不配置 API Key 也可使用，系统自动回退到本地知识库模式。
+
+  5. 详细配置说明请参阅「智能体构建指南.md」。
+
+五、Windows 版构建
+-----------
+
+  将 Web 版打包为 Windows 可执行程序步骤：
+
+  1. 构建生产版本：
+     npm run build
+
+  2. 更新 Windows 目录：
+     · 删除 02_Windows可执行程序/www 目录
+     · 将 dist 目录重命名为 www 并复制到 02_Windows可执行程序 下
+
+  3. 双击 02_Windows可执行程序/灵境智游.exe 即可运行。
+
+  注意：Windows exe 只是一个静态文件服务器，所有功能（智能体、拍照打卡）
+  均在浏览器中运行。智能体 API 直接从浏览器端调用，不经过本地服务器。
+
+六、重要文件说明
+-----------
+  src/data/agentConfig.js       智能体配置（API、人设提示词、工具定义）
+  src/data/knowledge.js         本地知识库（关键词匹配，智能体降级方案）
+  src/data/checkinBackgrounds.js 打卡点背景配置
+  src/utils/photoSynthesizer.js 打卡照片 Canvas 合成引擎
+  src/hooks/useSpeech.js        语音合成与识别 Hook
+  scripts/Launcher.cs           Windows C# 启动器源码
+  scripts/synthesize-voice.ps1  Windows PowerShell 语音合成脚本
+  scripts/synthesize-voice.sh   Linux/macOS 语音合成脚本
+  智能体构建指南.md              智能体构建完整指南（含 Windows 平台说明）
+  .env.example                  环境变量配置模板

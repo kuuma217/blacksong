@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "name": "灵境智游源码",
+      "path": "灵境智游源码"
+    }
+  ],
+  "settings": {
+    "files.encoding": "utf8",
+    "editor.formatOnSave": true,
+    "terminal.integrated.cwd": "${workspaceFolder}"
+  }
+}

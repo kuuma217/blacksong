@@ -1,0 +1,7 @@
+.magic-bento-grid { position:relative; perspective:1200px; }
+.magic-bento-card { --glow-x:50%; --glow-y:50%; --glow-radius:300px; --glow-intensity:0; position:relative; overflow:hidden; isolation:isolate; transform-style:preserve-3d; will-change:transform; }
+.magic-bento-grid--glow .magic-bento-card::after { content:""; position:absolute; inset:0; padding:2px; border-radius:inherit; background:radial-gradient(var(--glow-radius) circle at var(--glow-x) var(--glow-y),rgba(var(--glow-color),calc(var(--glow-intensity) * .9)),rgba(var(--glow-color),calc(var(--glow-intensity) * .2)) 34%,transparent 62%); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; z-index:3; }
+.magic-bento-card:hover { box-shadow:0 14px 34px rgba(31,73,62,.14),0 0 28px rgba(var(--glow-color),.12); }
+.magic-particle { position:absolute; width:4px; height:4px; border-radius:50%; background:rgba(var(--particle-color),1); box-shadow:0 0 8px rgba(var(--particle-color),.65); pointer-events:none; z-index:2; }
+.magic-ripple { position:absolute; width:28px; height:28px; margin:-14px; border-radius:50%; background:radial-gradient(circle,rgba(var(--particle-color),.35),transparent 70%); pointer-events:none; z-index:4; }
+@media (prefers-reduced-motion:reduce) { .magic-bento-card { transform:none !important; } }

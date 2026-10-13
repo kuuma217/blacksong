@@ -1,0 +1,40 @@
+灵境智游产品交付包
+版本：V1.1
+交付日期：2026-07-19
+更新说明：新增 Windows 版智能体与拍照打卡功能说明文档
+
+01_产品源代码
+  - 灵境智游.code-workspace：VS Code 工作区入口
+  - 灵境智游源码：完整 React + Vite 源代码、素材、配置和锁定依赖清单
+    · src/data/agentConfig.js —— AI 智能体配置（API、人设、工具定义）
+    · src/utils/photoSynthesizer.js —— 打卡照片 Canvas 合成引擎
+    · src/components/AssistantPanel.jsx —— AI 数字人对话面板
+    · src/components/MissionPanel.jsx —— 拍照打卡任务面板
+    · src/components/CheckinPreviewModal.jsx —— 打卡照片预览弹窗
+    · src/hooks/useSpeech.js —— 语音合成与识别
+  - 智能体构建指南.md：智能体构建完整指南（V2.1，含 Windows 平台说明）
+  - 源码使用说明.txt（已更新，含功能模块和 Windows 构建说明）
+
+02_Windows可执行程序
+  - 灵境智游.exe：双击启动的 Windows 本地程序
+  - www：已完成生产构建的网页资源
+  - 启动说明.txt（已更新，含智能体和拍照打卡使用说明）
+  - Windows版智能体与拍照打卡功能说明.md（新增，详细功能说明和配置指南）
+
+03_产品文档
+  - 灵境智游_产品部署和使用手册_V1.0.docx
+  - 灵境智游_产品总体设计文档_V1.0.docx
+
+04_交付清单.txt（本文件）
+
+05_产品演示视频.mp4
+
+功能说明：
+  ✅ AI 智能体对话 —— 基于通义千问大模型，支持语义理解、多轮对话、工具调用
+  ✅ 拍照打卡 —— 4 个打卡点，Canvas 本地合成专属照片，可下载保存
+  ✅ 数字人导游 —— 5 位角色（小灵/灵若/行远/冬灵/外灵），各有独特人设和声线
+  ✅ 个性化路线 —— 根据游客画像智能推荐游览路线
+  ✅ 运营管理后台 —— 游客分析、知识库管理、数字人管理
+  ✅ Windows 可执行版 —— 双击启动，浏览器运行，开箱即用
+
+说明：源码副本不含 node_modules；可执行程序不依赖 Node.js。

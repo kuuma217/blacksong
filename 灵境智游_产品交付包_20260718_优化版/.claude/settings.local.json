@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dpkg -l)",
+      "Bash(zip --help)",
+      "Bash(apt list *)"
+    ]
+  }
+}
