@@ -12,8 +12,8 @@ createRoot(document.getElementById("root")).render(
         spinDuration={2.4}
         hideDefaultCursor
         parallaxOn
-        cursorColor="#2d7664"
-        cursorColorOnTarget="#c29245"
+        cursorColor="#d3ab6b"
+        cursorColorOnTarget="#ecd9ae"
       />
       <App />
     </>

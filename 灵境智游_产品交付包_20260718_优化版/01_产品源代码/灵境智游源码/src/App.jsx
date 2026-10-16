@@ -5,11 +5,9 @@ import HomeAmbience from "./components/HomeAmbience.jsx";
 import ToastHost from "./components/ToastHost.jsx";
 import { guides } from "./data/guides.js";
 import { chooseRoute, personalizeRoute } from "./data/routes.js";
-import { filterSpots, spotCategories, spotCategoryLabel, spots as allSpots } from "./data/spots.js";
 
 const RoutePanel = lazy(() => import("./components/RoutePanel.jsx"));
 const MissionPanel = lazy(() => import("./components/MissionPanel.jsx"));
-const ScenicPanel = lazy(() => import("./components/ScenicPanel.jsx"));
 const ProfileModal = lazy(() => import("./components/ProfileModal.jsx"));
 const LoginModal = lazy(() => import("./components/LoginModal.jsx"));
 const AdminDashboard = lazy(() => import("./components/AdminDashboard.jsx"));
@@ -17,49 +15,14 @@ const AdminDashboard = lazy(() => import("./components/AdminDashboard.jsx"));
 const PanelLoading = () => <div className="panel-loading" role="status">正在加载体验…</div>;
 
 // 通用设计稿整页：1:1 呈现 + 透明热区交互（C 责任页面共用）
-// active 为 true 的热区会显示金色高亮，用于反馈「已选中」状态
-// markers：可见的地图景点标注（底图未绘制的景点由 DOM 标注补齐）
-// chips：覆盖在底图上的分类胶囊（重绘底图里画死的分类样式，悬停变绿）
-// cover：整列不透明底色，先把底图画死的分类彻底挡住，胶囊再画在这层之上
-function DesignPage({ src, ratio, alt, hotspots, markers, chips, cover }) {
+function DesignPage({ src, ratio, alt, hotspots }) {
   return (
     <div className="hero-canvas" style={{ aspectRatio: ratio }}>
       <img className="hero-photo" src={src} alt={alt} />
-      {cover && (
-        <div
-          className="design-cover"
-          style={{ left: `${cover[0]}%`, top: `${cover[1]}%`, width: `${cover[2]}%`, height: `${cover[3]}%` }}
-        />
-      )}
-      {(chips || []).map((chip) => (
-        <button
-          key={chip.key}
-          className={`design-chip${chip.active ? " is-active" : ""}`}
-          style={{ left: `${chip.box[0]}%`, top: `${chip.box[1]}%`, width: `${chip.box[2]}%`, height: `${chip.box[3]}%` }}
-          aria-pressed={chip.active ? true : undefined}
-          aria-label={chip.label}
-          onClick={chip.onClick}
-        >
-          <span className="design-chip-dot">{chip.icon}</span>
-          <span className="design-chip-label">{chip.label}</span>
-        </button>
-      ))}
-      {(markers || []).map((marker) => (
-        <button
-          key={marker.key}
-          className={`map-marker${marker.active ? " is-active" : ""}`}
-          style={{ left: `${marker.point[0]}%`, top: `${marker.point[1]}%` }}
-          aria-label={marker.label}
-          onClick={marker.onClick}
-        >
-          <span className="map-marker-dot">{marker.icon}</span>
-          <span className="map-marker-label">{marker.label}</span>
-        </button>
-      ))}
       {hotspots.map((spot) => (
         <button
           key={spot.label}
-          className={`hero-hotspot${spot.active ? " is-active" : ""}`}
+          className="hero-hotspot"
           style={{
             left: `${spot.box[0]}%`,
             top: `${spot.box[1]}%`,
@@ -67,7 +30,6 @@ function DesignPage({ src, ratio, alt, hotspots, markers, chips, cover }) {
             height: `${spot.box[3]}%`,
           }}
           aria-label={spot.label}
-          aria-pressed={spot.active ? true : undefined}
           onClick={spot.onClick}
         />
       ))}
@@ -99,14 +61,6 @@ export default function App() {
   const [landing, setLanding] = useState("home");
   // AI 数字人页：点击立绘后弹出真实对话面板
   const [assistantLive, setAssistantLive] = useState(false);
-  // 景区导览：当前景点分类与选中景点（设计页热区与真实面板双向联动）
-  const [spotCategory, setSpotCategory] = useState("all");
-  const [activeSpotKey, setActiveSpotKey] = useState("buddha");
-  // 从景点卡片带去数字人对话的问题（seq 用于重复提问也能触发）
-  const [presetQuestion, setPresetQuestion] = useState(null);
-  // 景区导览：景点详情与打卡改为弹窗呈现，不再滚动到设计页下方
-  const [spotModal, setSpotModal] = useState(false);
-  const [missionModal, setMissionModal] = useState(false);
 
   const notify = useCallback((message, type = "success") => {
     const id = Date.now() + Math.random();
@@ -122,21 +76,16 @@ export default function App() {
     const onNavigate = (event) => {
       const { panel } = event.detail || {};
       if (panel === "scenic" || panel === "route" || panel === "center" || panel === "stamp" || panel === "wardrobe" || panel === "home") {
-        setSpotModal(false);
-        setMissionModal(false);
         setLanding(panel);
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
       if (panel === "assistant") {
-        setSpotModal(false);
-        setMissionModal(false);
         setLanding("assistant");
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
       if (panel === "mission") {
-        setSpotModal(false);
         setLanding("stamp");
         setActivePanel("mission");
         setTimeout(() => document.getElementById("panelSection")?.scrollIntoView({ behavior: "smooth" }), 120);
@@ -148,20 +97,6 @@ export default function App() {
   useEffect(() => {
     if (routeProfile) window.localStorage.setItem("lingjing-route-profile", JSON.stringify(routeProfile));
   }, [routeProfile]);
-
-  // 弹窗打开时锁定背景滚动，并支持 Esc / 点击遮罩关闭
-  useEffect(() => {
-    if (!spotModal && !missionModal) return;
-    const closeAll = () => { setSpotModal(false); setMissionModal(false); };
-    const onKeyDown = (event) => { if (event.key === "Escape") closeAll(); };
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [spotModal, missionModal]);
 
   const activeRoute = useMemo(
     () => personalizeRoute(routeKey, routeProfile),
@@ -179,13 +114,10 @@ export default function App() {
   // 热区共用：数字人进独立页；路线/打卡面板挂在其设计页下方按需展开
   const gotoPanel = useCallback((panel) => {
     if (panel === "assistant") {
-      setSpotModal(false);
-      setMissionModal(false);
       setLanding("assistant");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    setSpotModal(false);
     setLanding(panel === "mission" ? "stamp" : "route");
     setActivePanel(panel);
     setTimeout(() => document.getElementById("panelSection")?.scrollIntoView({ behavior: "smooth" }), 120);
@@ -193,61 +125,9 @@ export default function App() {
 
   // 整页落地页跳转
   const goLanding = useCallback((page) => {
-    setSpotModal(false);
-    setMissionModal(false);
     setLanding(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
-
-  const scrollToPanel = () => {
-    setTimeout(() => document.getElementById("panelSection")?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
-  };
-
-  // 景区导览：切换景点分类（真实筛选，面板与地图同步）
-  const pickSpotCategory = useCallback((key) => {
-    setSpotCategory(key);
-    const list = filterSpots(key);
-    setActiveSpotKey(list[0]?.key || "buddha");
-    notify(key === "all" ? `已展示全部 ${list.length} 个景点` : `已按「${spotCategoryLabel(key)}」筛选：${list.length} 个景点`, "info");
-    setSpotModal(true);
-  }, [notify]);
-
-  // 景区导览：选中某个景点（地图定位点 / 列表项共用）
-  const focusSpot = useCallback((key) => {
-    const spot = allSpots.find((item) => item.key === key);
-    if (!spot) return;
-    // 定位到不在当前分类的景点时，切到该景点所属分类，而不是回到「全部景点」
-    if (spotCategory !== "all" && !spot.categories.includes(spotCategory)) {
-      setSpotCategory(spot.categories[0] || "all");
-    }
-    setActiveSpotKey(key);
-    setSpotModal(true);
-    notify(`已定位：${spot.name} · ${spot.badge}`, "info");
-  }, [notify, spotCategory]);
-
-  // 带着景点问题去问数字人
-  const askGuide = useCallback((spot) => {
-    setPresetQuestion({ text: spot.question, seq: Date.now() });
-    setSpotModal(false);
-    setAssistantLive(true);
-    notify(`已向数字人提问：${spot.question}`, "success");
-  }, [notify]);
-
-  // 把景点带进路线规划
-  const planSpot = useCallback((spot) => {
-    setSpotModal(false);
-    setProfileOpen(true);
-    notify(spot ? `正在为你规划包含「${spot.name}」的路线` : "正在为你规划专属路线", "info");
-  }, [notify]);
-
-  // 去打卡集章：同样以弹窗呈现，不跳转页面
-  const checkinSpot = useCallback((spot) => {
-    setSpotModal(false);
-    setMissionModal(true);
-    notify(spot ? `已打开打卡面板，可上传「${spot.name}」的打卡照` : "已打开打卡面板", "info");
-  }, [notify]);
-
-  const visibleSpots = useMemo(() => filterSpots(spotCategory), [spotCategory]);
 
   // 设计稿页热区（坐标为设计稿百分比）
   const box = (l, t, w, h) => [l, t, w, h];
@@ -263,45 +143,20 @@ export default function App() {
     { label: "个人中心", box: box(94.2, 2.2, 3.8, 5.6), onClick: () => goLanding("center") },
   ];
 
-  // 景区导览页：导航与功能按钮坐标均按设计稿像素实测标定，点击后驱动真实面板
   const scenicSpots = [
-    { label: "首页", box: box(28.3, 2.5, 4.39, 4.3), onClick: () => goLanding("home") },
-    { label: "景区导览", box: box(33.96, 2.5, 7.19, 4.3), onClick: () => goLanding("scenic") },
-    { label: "AI 数字人问答", box: box(41.92, 2.5, 6.78, 4.3), onClick: () => gotoPanel("assistant") },
-    { label: "个性路线", box: box(49.62, 2.5, 6.68, 4.3), onClick: () => goLanding("route") },
-    { label: "打卡集章", box: box(57.11, 2.5, 6.78, 4.3), onClick: () => goLanding("stamp") },
-    { label: "更多服务", box: box(64.81, 2.5, 4.44, 4.3), onClick: () => notify("更多服务敬请期待", "info") },
-    { label: "打卡拍照", box: box(85.52, 2.5, 3.67, 4.3), onClick: () => goLanding("stamp") },
-    { label: language === "zh" ? "切换到 English" : "切换到中文", box: box(89.04, 2.5, 4.39, 4.3), onClick: () => setLanguage((current) => (current === "zh" ? "en" : "zh")) },
-    { label: "个人中心", box: box(94.14, 2.5, 3.93, 4.3), onClick: () => goLanding("center") },
+    ...buildNavSpots(),
+    { label: "景点分类：全部景点", box: box(3, 40.8, 11.5, 4.8), onClick: () => notify("已展示全部景点", "info") },
+    { label: "景点分类：佛教文化", box: box(3, 48.3, 11.5, 4.4), onClick: () => notify("已按「佛教文化」筛选景点", "info") },
+    { label: "景点分类：自然景观", box: box(3, 55.5, 11.5, 4.4), onClick: () => notify("已按「自然景观」筛选景点", "info") },
+    { label: "景点分类：主题建筑", box: box(3, 63, 11.5, 4.4), onClick: () => notify("已按「主题建筑」筛选景点", "info") },
+    { label: "景点分类：休闲体验", box: box(3, 70.5, 11.5, 4.4), onClick: () => notify("已按「休闲体验」筛选景点", "info") },
     { label: "返回全景", box: box(62.8, 33.9, 7.4, 4), onClick: () => goLanding("home") },
-    { label: "地图定位：灵山大佛", box: box(44.6, 39.6, 8.4, 4.8), active: activeSpotKey === "buddha", onClick: () => focusSpot("buddha") },
-    { label: "地图定位：梵宫", box: box(35.4, 49, 6.4, 4.6), active: activeSpotKey === "palace", onClick: () => focusSpot("palace") },
-    { label: "地图定位：五印坛城", box: box(55.6, 60.8, 9, 4.8), active: activeSpotKey === "mandala", onClick: () => focusSpot("mandala") },
-    { label: "地图定位：九龙灌浴", box: box(30.6, 65.2, 8.8, 4.6), active: activeSpotKey === "dragons", onClick: () => focusSpot("dragons") },
-    { label: "查看当前景点详情", box: box(74, 83.9, 10.6, 5.2), onClick: () => focusSpot(activeSpotKey) },
-    { label: "规划路线", box: box(85.88, 83.68, 10.71, 5.41), onClick: () => planSpot(visibleSpots.find((item) => item.key === activeSpotKey)) },
-  ];
-
-  // 地图标注：底图只绘制了四个景点钉，其余景点用 DOM 标注补齐（坐标为设计稿百分比）
-  const scenicMarkers = [
-    { key: "xiangfu", label: "祥符禅寺", icon: "禅", point: [50, 50.5], active: activeSpotKey === "xiangfu", onClick: () => focusSpot("xiangfu") },
-    { key: "maitreya", label: "百子戏弥勒", icon: "趣", point: [47.5, 66], active: activeSpotKey === "maitreya", onClick: () => focusSpot("maitreya") },
-    { key: "perfume", label: "香水海", icon: "水", point: [32, 76.5], active: activeSpotKey === "perfume", onClick: () => focusSpot("perfume") },
-    { key: "screenwall", label: "灵山照壁", icon: "照", point: [45.5, 81], active: activeSpotKey === "screenwall", onClick: () => focusSpot("screenwall") },
-    { key: "vegetarian", label: "灵山蔬食馆", icon: "斋", point: [56, 79.5], active: activeSpotKey === "vegetarian", onClick: () => focusSpot("vegetarian") },
-  ];
-
-  // 整列底色遮挡层：先把底图画死的分类（含墨绿徽章）整块盖住，胶囊再叠上去
-  const scenicCover = [2.3, 38.4, 14.9, 39];
-
-  // 景点分类胶囊：画在遮挡层之上，默认浅色、悬停变绿；已按你说的把「全部景点」整档上调
-  const scenicCategoryChips = [
-    { key: "all", label: "全部景点", icon: "全", box: box(2.6, 39.6, 14.6, 6.4), active: spotCategory === "all", onClick: () => pickSpotCategory("all") },
-    { key: "buddhist", label: "佛教文化", icon: "佛", box: box(2.6, 48, 14.6, 5.8), active: spotCategory === "buddhist", onClick: () => pickSpotCategory("buddhist") },
-    { key: "nature", label: "自然景观", icon: "山", box: box(2.6, 55.6, 14.6, 5.8), active: spotCategory === "nature", onClick: () => pickSpotCategory("nature") },
-    { key: "architecture", label: "主题建筑", icon: "殿", box: box(2.6, 63.3, 14.6, 5.8), active: spotCategory === "architecture", onClick: () => pickSpotCategory("architecture") },
-    { key: "leisure", label: "休闲体验", icon: "憩", box: box(2.6, 71.1, 14.6, 5.8), active: spotCategory === "leisure", onClick: () => pickSpotCategory("leisure") },
+    { label: "地图定位：灵山大佛", box: box(44.6, 39.6, 8.4, 4.8), onClick: () => notify("已定位：灵山大佛 · 世界文化遗产", "info") },
+    { label: "地图定位：梵宫", box: box(35.4, 49, 6.4, 4.6), onClick: () => notify("已定位：梵宫 · 东方艺术殿堂", "info") },
+    { label: "地图定位：五印坛城", box: box(55.6, 60.8, 9, 4.8), onClick: () => notify("已定位：五印坛城 · 佛教艺术宝库", "info") },
+    { label: "地图定位：九龙灌浴", box: box(30.6, 65.2, 8.8, 4.6), onClick: () => notify("已定位：九龙灌浴 · 佛教圣景", "info") },
+    { label: "查看详情", box: box(73.4, 83.6, 10.6, 5.4), onClick: () => notify("灵山大佛：开放时间 7:00-17:30，成人票 210 元、优待票 105 元", "info") },
+    { label: "规划路线", box: box(84.7, 83.6, 11.7, 5.4), onClick: () => setProfileOpen(true) },
   ];
 
   const routeSpots = [
@@ -480,9 +335,8 @@ export default function App() {
             </>
           )}
 
-          {/* 景区导览：地图定位点 / 景点分类 / 查看详情均唤起弹窗，不再滚动到页面下方 */}
           {landing === "scenic" && (
-            <DesignPage src="/assets/scenic-guide.webp" ratio="1961 / 1109" alt="景区导览——步一景 · 探寻灵山之美" hotspots={scenicSpots} markers={scenicMarkers} chips={scenicCategoryChips} cover={scenicCover} />
+            <DesignPage src="/assets/scenic-guide.webp" ratio="1961 / 1109" alt="景区导览——步一景 · 探寻灵山之美" hotspots={scenicSpots} />
           )}
           {landing === "route" && (
             <>
@@ -528,56 +382,11 @@ export default function App() {
         <div className="assistant-overlay" role="dialog" aria-modal="true" aria-label="灵山数字人云澈对话">
           <button className="assistant-overlay-back" onClick={() => setAssistantLive(false)} aria-label="返回数字人介绍页">← 返回介绍</button>
           <div className="assistant-overlay-card">
-            <AssistantPanel guideKey={guideKey} onGuideChange={setGuideKey} route={activeRoute} language={language} notify={notify} presetQuestion={presetQuestion} />
+            <AssistantPanel guideKey={guideKey} onGuideChange={setGuideKey} route={activeRoute} language={language} notify={notify} />
           </div>
         </div>
       )}
       {loginOpen && <Suspense fallback={null}><LoginModal open onClose={() => setLoginOpen(false)} notify={notify} onLogin={() => { setAdminLogged(true); setLoginOpen(false); setView("admin"); notify("欢迎进入灵山运营中心", "success"); }} /></Suspense>}
-      {/* 景区导览弹窗：地图定位点 / 景点分类 / 查看详情点击后直接弹出，不再跳转下方版块 */}
-      {spotModal && (
-        <div
-          className="scenic-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-label="景区导览 · 景点详情"
-          onClick={(event) => { if (event.target === event.currentTarget) setSpotModal(false); }}
-        >
-          <div className="scenic-modal">
-            <button type="button" className="scenic-modal-close" onClick={() => setSpotModal(false)} aria-label="关闭景点详情">×</button>
-            <Suspense fallback={<PanelLoading />}>
-              <ScenicPanel
-                categories={spotCategories}
-                category={spotCategory}
-                onCategoryChange={pickSpotCategory}
-                spots={visibleSpots}
-                activeKey={activeSpotKey}
-                onSelect={focusSpot}
-                onAsk={askGuide}
-                onPlan={() => planSpot(visibleSpots.find((item) => item.key === activeSpotKey))}
-                onCheckin={checkinSpot}
-                scoped={spotCategory !== "all"}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-      {/* 打卡弹窗：从景点详情「去这里打卡」唤起 */}
-      {missionModal && (
-        <div
-          className="scenic-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-label="打卡集章"
-          onClick={(event) => { if (event.target === event.currentTarget) setMissionModal(false); }}
-        >
-          <div className="scenic-modal">
-            <button type="button" className="scenic-modal-close" onClick={() => setMissionModal(false)} aria-label="关闭打卡面板">×</button>
-            <Suspense fallback={<PanelLoading />}>
-              <MissionPanel guide={guides[guideKey]} missions={missions} setMissions={setMissions} notify={notify} />
-            </Suspense>
-          </div>
-        </div>
-      )}
       <ToastHost toasts={toasts} />
     </>
   );

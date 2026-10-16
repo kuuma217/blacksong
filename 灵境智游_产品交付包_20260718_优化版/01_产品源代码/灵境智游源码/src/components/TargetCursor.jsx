@@ -147,14 +147,8 @@ export default function TargetCursor({
   return (
     <div ref={cursorRef} className="target-cursor-wrapper">
       <div ref={dotRef} className="target-cursor-dot" style={{ backgroundColor: cursorColor }} />
-      <div ref={frameRef} className="target-cursor-frame" style={{ color: cursorColor }}>
-        {[
-          "tl",
-          "tr",
-          "br",
-          "bl"
-        ].map((name) => <div key={name} className={`target-cursor-corner corner-${name}`} />)}
-      </div>
+      {/* 圆环光标：替代原四角方框造型 */}
+      <div ref={frameRef} className="target-cursor-ring" style={{ color: cursorColor }} />
     </div>
   );
 }

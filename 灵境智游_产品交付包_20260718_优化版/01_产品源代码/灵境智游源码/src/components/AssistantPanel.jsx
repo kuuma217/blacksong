@@ -13,7 +13,7 @@ const initialMessage = {
   emotion: "😊"
 };
 
-export default function AssistantPanel({ guideKey, onGuideChange, route, language, notify, presetQuestion }) {
+export default function AssistantPanel({ guideKey, onGuideChange, route, language, notify }) {
   const guide = guides[guideKey];
   const [messages, setMessages] = useState([initialMessage]);
   const [input, setInput] = useState("");
@@ -111,14 +111,6 @@ export default function AssistantPanel({ guideKey, onGuideChange, route, languag
     }, language === "en" ? "en-US" : "zh-CN");
     if (!supported) notify("当前浏览器不支持语音识别，建议使用最新版 Edge 或 Chrome。", "warning");
   };
-
-  // 从景区导览等页面带过来的预设问题：seq 变化即代为提问
-  const presetSeq = presetQuestion?.seq;
-  useEffect(() => {
-    if (!presetQuestion?.text) return;
-    ask(presetQuestion.text);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presetSeq]);
 
   const quickPrompts = useMemo(() => language === "en"
     ? ["How tall is the Grand Buddha?", "Recommend a photo route", "What is Nine Dragons Bathing?", "What is the weather?"]
