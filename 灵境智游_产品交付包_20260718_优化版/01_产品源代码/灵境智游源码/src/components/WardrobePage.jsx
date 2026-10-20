@@ -95,7 +95,7 @@ export default function WardrobePage({ missions, guideKey, notify, hotspots = []
   return (
     <section className="wb-page" aria-label="我的衣橱">
       {/* 顶部原导航条：保持与其它设计页完全一致的公共导航视觉 */}
-      <img className="wb-nav-art" src="/assets/wardrobe-panel.webp?v=clear20261020" alt="" aria-hidden="true" />
+      <img className="wb-nav-art" src={`${import.meta.env.BASE_URL}assets/wardrobe-panel.webp?v=clear20261020`} alt="" aria-hidden="true" />
       {hotspots.map((spot) => (
         <button
           key={spot.label}

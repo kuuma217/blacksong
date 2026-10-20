@@ -18,29 +18,29 @@ const missionItems = [
 
 const outfitAssetMap = {
   xiaoling: {
-    lotus: "/assets/xiaoling-lotus.webp",
-    sunset: "/assets/xiaoling-sunset.webp",
-    night: "/assets/xiaoling-night.webp"
+    lotus: `${import.meta.env.BASE_URL}assets/xiaoling-lotus.webp`,
+    sunset: `${import.meta.env.BASE_URL}assets/xiaoling-sunset.webp`,
+    night: `${import.meta.env.BASE_URL}assets/xiaoling-night.webp`
   },
   lingruo: {
-    lotus: "/assets/lingruo-lotus.webp",
-    sunset: "/assets/lingruo-sunset.webp",
-    night: "/assets/lingruo-night.webp"
+    lotus: `${import.meta.env.BASE_URL}assets/lingruo-lotus.webp`,
+    sunset: `${import.meta.env.BASE_URL}assets/lingruo-sunset.webp`,
+    night: `${import.meta.env.BASE_URL}assets/lingruo-night.webp`
   },
   xingyuan: {
-    lotus: "/assets/xingyuan-lotus.webp",
-    sunset: "/assets/xingyuan-sunset.webp",
-    night: "/assets/xingyuan-night.webp"
+    lotus: `${import.meta.env.BASE_URL}assets/xingyuan-lotus.webp`,
+    sunset: `${import.meta.env.BASE_URL}assets/xingyuan-sunset.webp`,
+    night: `${import.meta.env.BASE_URL}assets/xingyuan-night.webp`
   },
   dongling: {
-    lotus: "/assets/dongling-lotus.webp",
-    sunset: "/assets/dongling-sunset.webp",
-    night: "/assets/dongling-night.webp"
+    lotus: `${import.meta.env.BASE_URL}assets/dongling-lotus.webp`,
+    sunset: `${import.meta.env.BASE_URL}assets/dongling-sunset.webp`,
+    night: `${import.meta.env.BASE_URL}assets/dongling-night.webp`
   },
   wailing: {
-    lotus: "/assets/wailing-lotus.webp",
-    sunset: "/assets/wailing-sunset.webp",
-    night: "/assets/wailing-night.webp"
+    lotus: `${import.meta.env.BASE_URL}assets/wailing-lotus.webp`,
+    sunset: `${import.meta.env.BASE_URL}assets/wailing-sunset.webp`,
+    night: `${import.meta.env.BASE_URL}assets/wailing-night.webp`
   }
 };
 

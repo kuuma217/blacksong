@@ -12,10 +12,10 @@ import { readCheckinRecords } from "../utils/userProgress.js";
 const BOX = [22.5, 56.9, 25.0, 14.3];
 
 const VISITED_SPOTS = [
-  { key: "dafou", name: "灵山大佛", image: "/assets/visited-dafou.jpg" },
-  { key: "fangong", name: "梵宫", image: "/assets/visited-fangong.jpg" },
-  { key: "jiulong", name: "九龙灌浴", image: "/assets/visited-jiulong.jpg" },
-  { key: "wuyin", name: "五印坛城", image: "/assets/visited-wuyin.jpg" }
+  { key: "dafou", name: "灵山大佛", image: `${import.meta.env.BASE_URL}assets/visited-dafou.jpg` },
+  { key: "fangong", name: "梵宫", image: `${import.meta.env.BASE_URL}assets/visited-fangong.jpg` },
+  { key: "jiulong", name: "九龙灌浴", image: `${import.meta.env.BASE_URL}assets/visited-jiulong.jpg` },
+  { key: "wuyin", name: "五印坛城", image: `${import.meta.env.BASE_URL}assets/visited-wuyin.jpg` }
 ];
 
 /** 站点 id → missions 下标（顺序与 checkinBackgrounds 一致） */

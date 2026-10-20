@@ -63,7 +63,7 @@ export default function RouteConfigurator({ value, onChange, onGenerate, plannin
     <div className="route-config-live">
       <section className="route-config-card" aria-label="定制你的专属路线">
         {/* 设计稿原件抠图：分组图标、纸纹保持原样，胶囊与文字位置已清空 */}
-        <img className="route-config-card-bg" src="/assets/route-config-card.webp" alt="" />
+        <img className="route-config-card-bg" src={`${import.meta.env.BASE_URL}assets/route-config-card.webp`} alt="" />
 
         {/* 底图上的标题 / 副标题 / 分组标签已擦除，这里用真实字体重绘，
             不再受位图分辨率限制，任意缩放与高清屏都保持锐利 */}

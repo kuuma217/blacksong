@@ -120,7 +120,7 @@ export default function ScenicPano({ alt, markers, rail, railBox, nav, onBack })
         ref={trackRef}
         style={{ width: `${TRACK_RATIO * 100}%`, transform: `translateX(${-(INITIAL * MAX_SHIFT)}%)` }}
       >
-        <img src="/assets/scenic-pano.webp" alt={alt} draggable="false" />
+        <img src={`${import.meta.env.BASE_URL}assets/scenic-pano.webp`} alt={alt} draggable="false" />
         {(markers || []).map((marker) => (
           <button
             key={marker.key}

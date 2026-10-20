@@ -54,7 +54,7 @@
   position: absolute;
   inset: 8.2% 0 0 0;
   z-index: 0;
-  background-image: url("/assets/background.webp");
+  background-image: var(--img-wardrobe-bg, url("/assets/background.webp"));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

@@ -132,7 +132,7 @@ export default function RoutePanel({ route, onEditProfile, notify }) {
           <div className="scenic-map">
             <img
               className="scenic-map-bg"
-              src="/assets/scenic-map.webp"
+              src={`${import.meta.env.BASE_URL}assets/scenic-map.webp`}
               alt="灵山胜境全域景点地图：灵山大佛、梵宫、祥符禅寺、五印坛城、百子戏弥勒、九龙灌浴、香水海、灵山照壁、灵山蔬食馆"
             />
             <span className="scenic-map-veil" aria-hidden="true" />

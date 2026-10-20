@@ -64,7 +64,7 @@ export default function RouteRecommender({ planningKey = "", onOpenCard }) {
       {/* 盖掉底图上原有的四个主题标签与选中胶囊（标签功能已下线） */}
       <img
         className="route-rec-strip"
-        src="/assets/route-tabs-strip.webp"
+        src={`${import.meta.env.BASE_URL}assets/route-tabs-strip.webp`}
         alt=""
         style={{
           left: `${STRIP.left}%`,
@@ -77,7 +77,7 @@ export default function RouteRecommender({ planningKey = "", onOpenCard }) {
       {/* 盖掉设计稿上原有的「换一批」字形（该功能已下线） */}
       <img
         className="route-rec-strip"
-        src="/assets/route-shuffle-blank.webp"
+        src={`${import.meta.env.BASE_URL}assets/route-shuffle-blank.webp`}
         alt=""
         style={{
           left: `${SHUFFLE_PATCH.left}%`,
@@ -104,7 +104,7 @@ export default function RouteRecommender({ planningKey = "", onOpenCard }) {
             aria-label={`${card.no} ${card.title}`}
           >
             <img className="route-card-photo" src={card.photo} alt={card.title} />
-            <img className="route-card-seal" src="/assets/route-card-seal.webp" alt="" />
+            <img className="route-card-seal" src={`${import.meta.env.BASE_URL}assets/route-card-seal.webp`} alt="" />
 
             <div className="route-card-body">
               <h3 className="route-card-title">

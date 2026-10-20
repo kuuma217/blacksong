@@ -19,7 +19,7 @@ export default function CenterPanoCard({ spots = [], box = DEFAULT_BOX, onOpen }
         </header>
 
         <div className="center-pano-strip" style={{ aspectRatio: PANO_RATIO }}>
-          <img src="/assets/scenic-pano.webp" alt="灵山胜境全景长卷" draggable="false" />
+          <img src={`${import.meta.env.BASE_URL}assets/scenic-pano.webp`} alt="灵山胜境全景长卷" draggable="false" />
           {spots.map((spot) => (
             <button
               key={spot.key}

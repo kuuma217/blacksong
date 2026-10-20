@@ -766,7 +766,7 @@ export default function App() {
                   画面刻意不做任何漂移/缩放动画：一旦画面在动，照片与热区就会错开，导航栏会点不准 */}
               <div className="hero-canvas hero-dynamic">
                 <div className="hero-photo-wrap">
-                  <img className="hero-photo" src="/assets/hero-home.webp?v=clear20261020" alt="灵境智游首页：灵山胜境，一场心灵的旅程——一念一境，皆是灵山" />
+                  <img className="hero-photo" src={`${import.meta.env.BASE_URL}assets/hero-home.webp?v=clear20261020`} alt="灵境智游首页：灵山胜境，一场心灵的旅程——一念一境，皆是灵山" />
                   <img className="home-guide-avatar" src={guides.lingruo.thumbnail} alt="灵若导游头像" decoding="async" />
                   {/* 透明热区层：与照片同层同步缩放，坐标为设计稿像素百分比 */}
                   <div className="hero-hotspot-layer">
@@ -808,7 +808,7 @@ export default function App() {
           {landing === "scenic" && scenicView !== "pano" && (
             <div className="scenic-viewport">
               <div className={`scenic-stage${scenicView === "scene" ? " is-pushed" : ""}`}>
-                <DesignPage src="/assets/scenic-guide.webp?v=clear20261020" ratio="1961 / 1109" alt="景区导览——步一景 · 探寻灵山之美" hotspots={scenicSpots} markers={scenicMarkers} chips={scenicCategoryChips} cover={scenicCover} rail={scenicRail} railBox={scenicRailBox} />
+                <DesignPage src={`${import.meta.env.BASE_URL}assets/scenic-guide.webp?v=clear20261020`} ratio="1961 / 1109" alt="景区导览——步一景 · 探寻灵山之美" hotspots={scenicSpots} markers={scenicMarkers} chips={scenicCategoryChips} cover={scenicCover} rail={scenicRail} railBox={scenicRailBox} />
               </div>
               {scenicView === "scene" && (
                 <Suspense fallback={null}>
@@ -830,7 +830,7 @@ export default function App() {
           )}
           {landing === "route" && (
             <>
-              <DesignPage src="/assets/route-plan.webp?v=clear20261020" ratio="1959 / 1109" alt="个性路线——循心而行，定制你的灵山之旅" hotspots={routeSpots}>
+              <DesignPage src={`${import.meta.env.BASE_URL}assets/route-plan.webp?v=clear20261020`} ratio="1959 / 1109" alt="个性路线——循心而行，定制你的灵山之旅" hotspots={routeSpots}>
                 <img className="route-guide-figure" src={guides.lingruo.image} alt="灵若 · 云山清风" decoding="async" fetchPriority="high" />
                 {/* 真实可交互的「定制你的专属路线」面板：就地覆盖设计稿上的静态筛选项 */}
                 <RouteConfigurator
@@ -860,7 +860,7 @@ export default function App() {
             </>
           )}
           {landing === "assistant" && (
-            <DesignPage src="/assets/assistant-page.webp?v=clear20261020" ratio="1891 / 1080" alt={`AI数字人·智慧导览——有问题，问${guides[guideKey].name}，让旅程更简单`} hotspots={assistantSpots}>
+            <DesignPage src={`${import.meta.env.BASE_URL}assets/assistant-page.webp?v=clear20261020`} ratio="1891 / 1080" alt={`AI数字人·智慧导览——有问题，问${guides[guideKey].name}，让旅程更简单`} hotspots={assistantSpots}>
               {/* 顶部导航由 DOM 重建：底图上画死的深绿导航条已修复为天空，
                   这里按其他页面导航的同一视觉风格（透明融合 + 金色高亮）重建，且菜单真实可点 */}
               <nav className="design-nav" aria-label="站点导航">
@@ -927,7 +927,7 @@ export default function App() {
             </DesignPage>
           )}
           {landing === "center" && (
-            <DesignPage src="/assets/profile-center.webp?v=clear20261020" ratio="1962 / 1109" alt="个人中心——行走灵山 · 收藏美好" hotspots={centerSpots}>
+            <DesignPage src={`${import.meta.env.BASE_URL}assets/profile-center.webp?v=clear20261020`} ratio="1962 / 1109" alt="个人中心——行走灵山 · 收藏美好" hotspots={centerSpots}>
               {/* 底部「最近活动 + 最喜欢的景点」两卡位置合并为「我最喜欢的景点」照片墙，
                   长卷上的每个景点各占一个照片框，悬停/点击只作用于当前框 */}
               <CenterPanoCard spots={scenicPanoMarkers} />
@@ -960,7 +960,7 @@ export default function App() {
           )}
           {landing === "stamp" && (
             <>
-              <DesignPage src="/assets/stamp-panel.webp?v=clear20261020" ratio="1960 / 1109" alt="打卡集章——探寻灵山胜境 · 收集专属奖励" hotspots={stampSpots}>
+              <DesignPage src={`${import.meta.env.BASE_URL}assets/stamp-panel.webp?v=clear20261020`} ratio="1960 / 1109" alt="打卡集章——探寻灵山胜境 · 收集专属奖励" hotspots={stampSpots}>
                 {/* 动态状态覆盖层：用真实 missions 覆盖底图里印死的进度文字与地图打卡点 */}
                 <StampStatusOverlay missions={missions} onSelectSpot={(spotId) => setPendingSpotId(spotId)} />
                 {/* 动态奖励收集区：覆盖图片下方固定的七套服装展示，按真实集章进度解锁 */}
