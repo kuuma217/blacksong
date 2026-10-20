@@ -6,7 +6,7 @@
 
 | 方式 | 操作 |
 | --- | --- |
-| **在线（GitHub Pages）** | 仓库 Settings → Pages → Source 选择 `main` 分支 / `docs` 目录 → 访问 `https://<用户名>.github.io/<仓库名>/docs/` |
+| **在线（GitHub Pages）** | 仓库 Settings → Pages → Source 选择 `main` 分支 / `docs` 目录 → 访问 `https://<用户名>.github.io/<仓库名>/` |
 | **仓库启动页** | 直接访问仓库根 `index.html`（会自动跳转到 `docs/index.html`） |
 | **本地一键启动** | 双击仓库根目录的 `启动本地网页.bat`（需安装 Node.js），浏览器打开 `http://127.0.0.1:5173` |
 
