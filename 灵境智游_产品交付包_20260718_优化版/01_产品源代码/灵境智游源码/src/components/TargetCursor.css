@@ -1,11 +1,115 @@
-/* 光标主题：鎏金圆环 + 光晕圆点（无方框角标） */
-.target-cursor-active,.target-cursor-active * { cursor:none!important; }
-.target-cursor-hovered { outline:2px solid rgba(226,194,132,.55)!important; outline-offset:5px; filter:drop-shadow(0 0 10px rgba(211,171,107,.28)); transition:outline-color .16s ease,filter .16s ease; }
-.target-cursor-wrapper { position:fixed; top:0; left:0; width:34px; height:34px; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width var(--cursor-transition,.2s) ease,height var(--cursor-transition,.2s) ease; will-change:transform,width,height; }
-.target-cursor-dot { position:absolute; left:50%; top:50%; width:6px; height:6px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 10px currentColor,0 0 3px rgba(255,255,255,.85); }
-.target-cursor-ring { position:absolute; inset:0; border-radius:50%; border:1.5px solid currentColor; opacity:.9; box-shadow:0 0 14px rgba(226,194,132,.35),inset 0 0 9px rgba(226,194,132,.22); animation:target-cursor-breathe 2.8s ease-in-out infinite; }
-.target-cursor-wrapper.is-target .target-cursor-ring { border-radius:999px; border-width:1px; opacity:1; animation-play-state:paused; }
-.target-cursor-wrapper.is-target .target-cursor-dot { opacity:0; }
-@keyframes target-cursor-breathe { 0%,100% { transform:scale(1); opacity:.75; } 50% { transform:scale(.82); opacity:1; } }
-@media (pointer:coarse),(max-width:768px){.target-cursor-wrapper{display:none;}}
-@media (prefers-reduced-motion:reduce){.target-cursor-wrapper{display:none;}}
+/* 国风莲花指针：隐藏系统光标，以金色「莲纹铜钱」代替；行为仍是吸附到可交互元素 */
+.target-cursor-active,
+.target-cursor-active * { cursor: none !important; }
+
+/* 吸附到目标时的高亮：圆角金色描边 + 暖光 */
+.target-cursor-hovered {
+  outline: 2px solid rgba(194, 146, 69, 0.68) !important;
+  outline-offset: 4px;
+  border-radius: 10px;
+  filter: drop-shadow(0 0 10px rgba(226, 194, 132, 0.28));
+  transition: outline-color 0.16s ease, filter 0.16s ease, border-radius 0.16s ease;
+}
+
+.target-cursor-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width var(--cursor-transition, 0.2s) ease, height var(--cursor-transition, 0.2s) ease;
+  will-change: transform, width, height;
+}
+
+/* 莲花本体：跟随鼠标（含轻微视差偏移） */
+.target-cursor-lotus {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  color: #c29245;
+  transition: color 0.18s ease;
+  filter: drop-shadow(0 0 8px rgba(226, 194, 132, 0.42));
+}
+
+/* 缓慢自转，营造莲纹流转感；吸附到目标时停转并放大绽放 */
+.target-cursor-lotus-spin {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  animation: target-cursor-spin var(--spin-duration, 14s) linear infinite;
+}
+
+.target-cursor-lotus-art {
+  width: 100%;
+  height: 100%;
+  transform: scale(1);
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.target-cursor-wrapper.is-target .target-cursor-lotus-art {
+  transform: scale(1.28);
+}
+
+.target-cursor-wrapper.is-target .target-cursor-lotus-spin {
+  animation-play-state: paused;
+}
+
+/* 莲纹铜钱的线稿：外圈 + 花瓣 + 莲心，颜色由 currentColor 驱动 */
+.lotus-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-opacity: 0.38;
+}
+
+.lotus-petal {
+  fill: currentColor;
+}
+
+.lotus-core {
+  fill: currentColor;
+  opacity: 0.95;
+}
+
+/* 吸附到目标时泛起的一圈金色光晕 */
+.target-cursor-halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(226, 194, 132, 0.26), rgba(226, 194, 132, 0) 68%);
+  opacity: 0;
+  transform: scale(0.55);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.target-cursor-wrapper.is-target .target-cursor-halo {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes target-cursor-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (pointer: coarse), (max-width: 768px) {
+  .target-cursor-wrapper { display: none; }
+  .target-cursor-active,
+  .target-cursor-active * { cursor: auto !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .target-cursor-lotus-spin { animation: none; }
+  .target-cursor-lotus-art,
+  .target-cursor-halo { transition: none; }
+}

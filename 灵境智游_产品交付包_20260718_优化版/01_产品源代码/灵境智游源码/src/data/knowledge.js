@@ -57,32 +57,61 @@ export const knowledgeBase = [
   }
 ];
 
-export function resolveAnswer(question, route, language = "zh") {
+/**
+ * 计算关键词与用户问题的匹配得分
+ * 避免短词（如"九"）误伤长词（如"九龙灌浴"含"龙"匹配"龙虾"）
+ * 规则：单字不参与；2+ 字才匹配；命中多个关键词加权
+ */
+function scoreMatch(question, keywords) {
   const normalized = question.toLowerCase().replace(/[？?！!，,。\s]/g, "");
-  const isEnglish = language === "en" || /[a-z]{4,}/i.test(question);
-  if (["漂亮", "好看", "美吗", "beautiful", "pretty"].some((word) => normalized.includes(word))) {
+  let score = 0;
+  for (const keyword of keywords) {
+    const key = keyword.toLowerCase().replace(/\s/g, "");
+    if (key.length < 2) continue;  // 跳过单字
+    if (normalized.includes(key)) {
+      // 关键词越长权重越高，避免 "九" 抢 "九龙灌浴" 的匹配
+      score += key.length;
+    }
+  }
+  return score;
+}
+
+export function resolveAnswer(question, route) {
+  // AI 问答统一输出中文：不再随语言切换返回英文答案，提示词与答复一律为中文。
+  // 英文原文仍保存在 answerEn 字段里备用，但不会对外输出。
+  const isEnglish = false;
+  if (scoreMatch(question, ["漂亮", "好看", "美吗", "beautiful", "pretty"]) > 0) {
     return {
       answer: isEnglish ? "Absolutely. Your best look today is the confidence you brought to the journey—and the soft afternoon light at the Grand Buddha will make your photos even better!" : "当然漂亮呀！今天的你还有一种准备去发现新风景的神采。下午大佛平台光线更柔和，我再帮你找一个特别出片的角度。",
       source: "亲切闲聊层",
       emotion: "🥰"
     };
   }
-  if (["天气", "下雨", "weather", "temperature"].some((word) => normalized.includes(word))) {
+  if (scoreMatch(question, ["天气", "下雨", "weather", "temperature"]) > 0) {
     return {
       answer: isEnglish ? "The demo weather card shows 29°C in Wuxi, sunny to partly cloudy. Bring water and sun protection. A deployed version can connect to a live weather service." : "演示天气显示无锡今天29°C，晴到多云。建议带水并注意防晒；正式部署后可接入实时天气服务。",
       source: "天气服务适配层 · 演示数据",
       emotion: "☀️"
     };
   }
-  if (["路线", "推荐", "route", "recommend"].some((word) => normalized.includes(word))) {
+  if (scoreMatch(question, ["路线", "推荐", "route", "recommend"]) > 0) {
     return {
       answer: isEnglish ? `I have prepared “${route.title}” for you. It takes about ${route.duration} and covers ${route.steps.map((step) => step[0]).join(", ")}. Open My Route to start navigation.` : `我已经为你准备了“${route.title}”，预计${route.duration}、约${route.distance}。打开“我的路线”即可开始导航。`,
       source: "个性化路线引擎",
       emotion: "🧭"
     };
   }
-  const item = knowledgeBase.find((entry) => entry.match.some((word) => normalized.includes(word.replace(/\s/g, "").toLowerCase())));
-  if (item) return { answer: isEnglish ? item.answerEn : item.answer, source: item.source, emotion: item.emotion };
+  // 知识库匹配：选取得分最高的条目（不只取第一个）
+  let bestItem = null;
+  let bestScore = 0;
+  for (const entry of knowledgeBase) {
+    const score = scoreMatch(question, entry.match);
+    if (score > bestScore) {
+      bestScore = score;
+      bestItem = entry;
+    }
+  }
+  if (bestItem) return { answer: isEnglish ? bestItem.answerEn : bestItem.answer, source: bestItem.source, emotion: bestItem.emotion };
   return {
     answer: isEnglish ? "I’m not fully certain about that from the verified Lingshan knowledge base. I can help with the Grand Buddha, Brahma Palace, Nine Dragons Bathing, tickets, routes, accessibility and photo spots." : "这个问题在当前灵山知识库里还没有足够可靠的依据，我不想随便编答案。你可以问我灵山大佛、九龙灌浴、梵宫、门票、路线或无障碍信息。",
     source: "知识库边界策略",

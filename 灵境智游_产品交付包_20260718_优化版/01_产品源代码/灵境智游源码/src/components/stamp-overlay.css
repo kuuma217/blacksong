@@ -1,0 +1,226 @@
+/* ==========================================================
+   打卡集章设计图 · 动态状态覆盖层
+   地图状态胶囊：严格复刻原图标签（深青绿 #174F43 / 深灰绿 #555B54，
+   米白字、全圆角胶囊、无描边、无明显阴影）。
+   左侧进度卡：React 整卡重建，内部为小字号状态文字。
+   定位全部使用百分比（原图 1960×1109），随容器等比缩放。
+   ========================================================== */
+
+.stamp-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none; /* 容器不拦截点击，仅卡片与标签自身可交互 */
+}
+
+/* ============ 地图状态胶囊（复刻原图） ============ */
+
+.stamp-overlay .stamp-tag {
+  position: absolute;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px; /* 原图为扁平小型胶囊 */
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif; /* 楷体：已打卡 / 未打卡 */
+  font-size: clamp(10px, 0.92vw, 18px); /* 放大后仍完整落在印刷文字覆盖框内 */
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+  /* 未打卡：低调米金色（原图牌匾同色系） */
+  color: #24503f;
+  background: #e3cd9c;
+  box-shadow: none;
+  transition: background 0.2s ease;
+}
+
+.stamp-overlay .stamp-tag .stamp-tick {
+  margin-right: 0.3em;
+  font-size: 0.92em;
+  line-height: 1;
+}
+
+/* 已打卡：深青绿装饰色 + 米白文字 */
+.stamp-overlay .stamp-tag.done {
+  background: #174f43;
+  color: #f3e8c9;
+}
+
+/* 未打卡：可点击，悬停略深 */
+.stamp-overlay .stamp-tag.todo {
+  cursor: pointer;
+}
+
+.stamp-overlay .stamp-tag.todo:hover {
+  background: #d7bd82;
+}
+
+.stamp-overlay .stamp-tag:disabled {
+  cursor: default;
+}
+
+/* ============ 左侧进度卡（整卡重建，不透明，完全遮盖原图卡内内容） ============ */
+
+.stamp-overlay .stamp-card {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4px, 0.55vw, 9px);
+  padding: clamp(7px, 0.95vw, 16px);
+  border: 1px solid rgba(189, 150, 87, 0.5);
+  border-radius: clamp(10px, 1vw, 16px);
+  background: linear-gradient(165deg, #fbf7ee 0%, #f3ecdb 100%);
+  box-shadow: 0 4px 14px rgba(11, 30, 25, 0.22);
+  text-align: left;
+}
+
+.stamp-overlay .stamp-card-head {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 0.45vw, 8px);
+}
+
+/* 金色菱形装饰（对应原图标题前的荷花图标位） */
+.stamp-overlay .stamp-card-gem {
+  flex: 0 0 auto;
+  width: clamp(8px, 0.75vw, 12px);
+  height: clamp(8px, 0.75vw, 12px);
+  background: #c8a45f;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.stamp-overlay .stamp-card-head h3 {
+  margin: 0;
+  font-size: clamp(10px, 0.95vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #24503f;
+}
+
+.stamp-overlay .stamp-card-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 0.9vw, 14px);
+  min-height: 0;
+}
+
+/* 进度环：SVG，随卡片等比缩放 */
+.stamp-overlay .stamp-ring {
+  position: relative;
+  flex: 0 0 36%;
+  aspect-ratio: 1;
+  max-height: 100%;
+}
+
+.stamp-overlay .stamp-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.stamp-overlay .stamp-ring-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+}
+
+.stamp-overlay .stamp-ring-num strong {
+  font-size: clamp(11px, 1vw, 17px);
+  font-weight: 700;
+  line-height: 1.05;
+  color: #24503f;
+}
+
+.stamp-overlay .stamp-ring-num span {
+  font-size: clamp(7px, 0.5vw, 10px);
+  letter-spacing: 0.1em;
+  color: #8a958e;
+}
+
+/* 景点列表：小字号状态文字，无按钮、无背景框（严格模仿原图） */
+.stamp-overlay .stamp-list {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(4px, 0.55vw, 9px);
+  min-width: 0;
+}
+
+.stamp-overlay .stamp-list li {
+  display: flex;
+  align-items: center;
+  gap: clamp(3px, 0.4vw, 7px);
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+  font-size: clamp(11px, 0.95vw, 18px);
+  line-height: 1.2;
+  color: #3f4f47;
+}
+
+.stamp-overlay .stamp-list li.todo {
+  cursor: pointer;
+}
+
+.stamp-overlay .stamp-list li .dot {
+  flex: 0 0 auto;
+  width: clamp(4px, 0.4vw, 7px);
+  height: clamp(4px, 0.4vw, 7px);
+  border-radius: 50%;
+}
+
+.stamp-overlay .stamp-list li.done .dot { background: #174f43; }
+.stamp-overlay .stamp-list li.todo .dot { background: #c8a45f; }
+
+.stamp-overlay .stamp-list li .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 状态文字：纯小字（原图风格），对勾/锁图标随文字 */
+.stamp-overlay .stamp-list li .state {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  font-style: normal;
+  font-size: clamp(10px, 0.82vw, 16px);
+  letter-spacing: 0.05em;
+  color: #8a958e;
+}
+
+/* 底部按钮：原图同款深青绿胶囊 */
+.stamp-overlay .stamp-card-btn {
+  margin-top: auto;
+  padding: clamp(4px, 0.5vw, 8px) clamp(6px, 0.7vw, 12px);
+  border: 0;
+  border-radius: 999px;
+  background: #174f43;
+  color: #f3e8c9;
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+  font-size: clamp(8px, 0.62vw, 12px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.stamp-overlay .stamp-card-btn:hover {
+  background: #1d5c4e;
+}

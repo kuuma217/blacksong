@@ -184,7 +184,9 @@ const speechPlugin = () => {
   };
 };
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // 构建产物使用相对路径，便于直接部署到 GitHub Pages 的 /docs 子目录或任意子路径
+  base: command === "build" ? "./" : "/",
   plugins: [react(), speechPlugin()],
   server: {
     host: "127.0.0.1",
@@ -211,4 +213,4 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 500
   }
-});
+}));

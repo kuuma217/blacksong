@@ -94,16 +94,31 @@ npm run preview
 
 ## 可选模型 API
 
-复制 `.env.example` 为 `.env.local`，按需填写：
+只需要一组变量，四家厂商都是 OpenAI 兼容接口，换厂商不用改代码。
+
+复制 `.env.example` 为 `.env.local`，按需填写（**改完必须重启 dev server**）：
 
 ```env
-VITE_QWEN_API_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-VITE_QWEN_API_KEY=sk-your-api-key-here
-VITE_QWEN_MODEL=qwen-plus
-VITE_KNOWLEDGE_API_URL=
+# 方案 A：智谱 GLM Flash（推荐，长期免费）
+VITE_QWEN_API_URL=https://open.bigmodel.cn/api/paas/v4
+VITE_QWEN_MODEL=glm-4-flash
+VITE_QWEN_API_KEY=你的Key
 ```
 
-**智能体模式：** 配置 `VITE_QWEN_API_KEY` 后，数字人对话自动切换到智能体模式（显示"🤖 智能体模式"标识）。未配置时使用本地知识库模式，不影响基本功能。
+其余三家（任选其一，注释掉另外三家即可）：
+
+| 方案 | 免费额度类型 | `VITE_QWEN_API_URL` | `VITE_QWEN_MODEL` | 获取 Key |
+|---|---|---|---|---|
+| 智谱 GLM（推荐） | **长期免费**，无每日配额 | `https://open.bigmodel.cn/api/paas/v4` | `glm-4.7-flash`（备选 `glm-4-flash`） | [open.bigmodel.cn](https://open.bigmodel.cn/) |
+| 阿里云百炼千问 | 新人**一次性**额度，用完转按量付费 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-flash` | [bailian.console.aliyun.com](https://bailian.console.aliyun.com/) |
+| 硅基流动 | 注册赠送 + 部分模型长期免费 | `https://api.siliconflow.cn/v1` | `Qwen/Qwen2.5-7B-Instruct` | [siliconflow.cn](https://siliconflow.cn/) |
+| DeepSeek | 无免费额度（价格极低） | `https://api.deepseek.com/v1` | `deepseek-chat` | [platform.deepseek.com](https://platform.deepseek.com/) |
+
+> 需要「额度长期/周期性可用」的场景选智谱。千问的免费额度是新人一次性赠送（约 100 万 token、有效期数月），**不会每天刷新**；已实名账号用完后会自动转为按量付费，建议开启「免费额度用完即停」。
+
+**智能体模式：** 配置 `VITE_QWEN_API_KEY` 后，数字人对话自动切换到智能体模式，右上角标识会显示实际厂商（如"🤖 智谱 GLM"）。未配置时使用本地知识库模式，不影响基本功能。
+
+**推荐路线：** 同样使用这个 Key。有 Key 时 Toast 显示「已由 AI 智能体生成」；无 Key、超时（12s）或返回格式不合格时显示「已按本地规则生成」，页面不会报错。
 
 **打卡照片合成：** 在浏览器端本地处理，无需配置任何 API。
 

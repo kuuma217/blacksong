@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useRef } from "react";
 import "./TargetCursor.css";
 
+// 国风莲花指针：隐藏系统光标，用一朵「莲纹铜钱」代替
+// 行为保持不变：移到可交互元素上时吸附到元素中心、外框描边高亮、按下时收缩
 export default function TargetCursor({
   targetSelector = ".cursor-target",
-  spinDuration = 2,
+  spinDuration = 14,
   hideDefaultCursor = true,
   hoverDuration = 0.2,
   parallaxOn = true,
-  cursorColor = "#fff",
+  cursorColor = "#c29245",
   cursorColorOnTarget
 }) {
   const cursorRef = useRef(null);
-  const dotRef = useRef(null);
-  const frameRef = useRef(null);
+  const lotusRef = useRef(null);
   const mobile = useMemo(
     () => matchMedia("(pointer: coarse)").matches || innerWidth <= 768,
     []
@@ -53,13 +54,12 @@ export default function TargetCursor({
       }
     };
 
+    // 吸附：光标落到目标元素中心（不再拉伸自身，莲花保持固定大小）
     const syncTarget = () => {
       if (!state.active?.isConnected) return;
       const rect = state.active.getBoundingClientRect();
       state.targetX = rect.left + rect.width / 2;
       state.targetY = rect.top + rect.height / 2;
-      cursor.style.width = `${rect.width + 10}px`;
-      cursor.style.height = `${rect.height + 10}px`;
       schedule();
     };
 
@@ -68,13 +68,9 @@ export default function TargetCursor({
       state.active = null;
       state.targetX = state.lastX ?? state.targetX;
       state.targetY = state.lastY ?? state.targetY;
-      cursor.style.width = "28px";
-      cursor.style.height = "28px";
       cursor.classList.remove("is-target");
-      dotRef.current?.style.removeProperty("transform");
-      const color = cursorColor;
-      if (dotRef.current) dotRef.current.style.backgroundColor = color;
-      if (frameRef.current) frameRef.current.style.color = color;
+      lotusRef.current?.style.removeProperty("transform");
+      if (lotusRef.current) lotusRef.current.style.color = cursorColor;
       schedule();
     };
 
@@ -84,11 +80,11 @@ export default function TargetCursor({
       if (!state.active) {
         state.targetX = event.clientX;
         state.targetY = event.clientY;
-      } else if (parallaxOn && dotRef.current) {
+      } else if (parallaxOn && lotusRef.current) {
         const rect = state.active.getBoundingClientRect();
         const x = (event.clientX - rect.left - rect.width / 2) * 0.06;
         const y = (event.clientY - rect.top - rect.height / 2) * 0.06;
-        dotRef.current.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+        lotusRef.current.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
       }
       schedule();
     };
@@ -100,9 +96,7 @@ export default function TargetCursor({
       state.active = target;
       target.classList.add("target-cursor-hovered");
       cursor.classList.add("is-target");
-      const color = cursorColorOnTarget || cursorColor;
-      if (dotRef.current) dotRef.current.style.backgroundColor = color;
-      if (frameRef.current) frameRef.current.style.color = color;
+      if (lotusRef.current) lotusRef.current.style.color = cursorColorOnTarget || cursorColor;
       syncTarget();
     };
 
@@ -112,7 +106,7 @@ export default function TargetCursor({
     };
 
     const down = () => {
-      state.scale = 0.9;
+      state.scale = 0.88;
       schedule();
     };
     const up = () => {
@@ -146,9 +140,27 @@ export default function TargetCursor({
   if (mobile) return null;
   return (
     <div ref={cursorRef} className="target-cursor-wrapper">
-      <div ref={dotRef} className="target-cursor-dot" style={{ backgroundColor: cursorColor }} />
-      {/* 圆环光标：替代原四角方框造型 */}
-      <div ref={frameRef} className="target-cursor-ring" style={{ color: cursorColor }} />
+      <span className="target-cursor-halo" />
+      <div ref={lotusRef} className="target-cursor-lotus" style={{ color: cursorColor }}>
+        <span className="target-cursor-lotus-spin">
+          <svg className="target-cursor-lotus-art" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            {/* 外圈：铜钱的形制 */}
+            <circle className="lotus-ring" cx="24" cy="24" r="21" />
+            {/* 八瓣莲花 */}
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+              <path
+                key={deg}
+                className="lotus-petal"
+                d="M24 6.5 C28.4 14.5 28.4 20.2 24 24 C19.6 20.2 19.6 14.5 24 6.5 Z"
+                transform={`rotate(${deg} 24 24)`}
+                opacity={deg % 90 === 0 ? 0.95 : 0.6}
+              />
+            ))}
+            {/* 莲心 */}
+            <circle className="lotus-core" cx="24" cy="24" r="3.4" />
+          </svg>
+        </span>
+      </div>
     </div>
   );
 }

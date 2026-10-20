@@ -12,18 +12,26 @@
  * 5. 人设更鲜明，对话风格更一致
  *
  * 部署方式：
- * - 方式一：在阿里云百炼平台创建智能体（推荐，可视化配置）
- * - 方式二：在 Dify / FastGPT 等开源平台搭建
- * - 方式三：自建智能体服务（调用 Qwen/GPT API + 自定义逻辑）
+ * - 方式一：直接调用 OpenAI 兼容接口（当前实现，只需配置 .env.local 三个变量）
+ *            可选厂商：智谱 GLM-4-Flash（长期免费）、阿里云百炼 qwen-flash / qwen-turbo（免费额度）、
+ *            硅基流动 SiliconFlow、DeepSeek、腾讯混元等，接口格式一致
+ * - 方式二：在阿里云百炼平台创建应用（可视化配置人设与知识库）
+ * - 方式三：在 Dify / FastGPT 等开源平台搭建，再把接口地址指向其 OpenAI 兼容端点
+ *
+ * 换厂商不需要改代码：只改 VITE_QWEN_API_URL / VITE_QWEN_MODEL 两个变量即可，
+ * 界面上的品牌名（agentLabel）会跟着模型名自动变化。
  */
 
 // 智能体基础配置
 export const agentConfig = {
-  // 通义千问 API 配置（正式部署时通过环境变量设置）
+  // 大模型接口配置（正式部署时通过环境变量设置）
+  // 当前接入的是智谱 GLM（open.bigmodel.cn），OpenAI 兼容格式。
+  // 换厂商不需要改代码：只改 VITE_QWEN_API_URL / VITE_QWEN_MODEL 两个变量即可，
+  // 界面上的品牌名（agentLabel）会跟着模型名自动变化。
   api: {
-    baseUrl: import.meta.env.VITE_QWEN_API_URL || "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    baseUrl: import.meta.env.VITE_QWEN_API_URL || "https://open.bigmodel.cn/api/paas/v4",
     apiKey: import.meta.env.VITE_QWEN_API_KEY || "",
-    model: import.meta.env.VITE_QWEN_MODEL || "qwen-plus"
+    model: import.meta.env.VITE_QWEN_MODEL || "glm-4-flash"
   },
 
   // RAG 知识库 API（可选，用于增强知识检索）
@@ -32,6 +40,27 @@ export const agentConfig = {
     enabled: !!import.meta.env.VITE_KNOWLEDGE_API_URL
   }
 };
+
+/**
+ * 当前配置的品牌名
+ *
+ * 只按模型名前缀判断，换厂商时界面不用改代码：
+ * glm-4-flash → 智谱 GLM、qwen-flash → 通义千问、deepseek-chat → DeepSeek…
+ * 硅基流动一类的 "Qwen/Qwen2.5-7B-Instruct" 取斜杠后半段。
+ */
+export function agentLabel() {
+  const model = String(agentConfig.api.model || "").trim();
+  const lower = model.toLowerCase();
+  if (lower.startsWith("glm")) return "智谱 GLM";
+  if (lower.startsWith("qwen")) return "通义千问";
+  if (lower.startsWith("deepseek")) return "DeepSeek";
+  if (lower.startsWith("hunyuan")) return "腾讯混元";
+  if (lower.startsWith("ernie")) return "文心一言";
+  if (lower.startsWith("gemini")) return "Gemini";
+  if (lower.startsWith("gpt")) return "OpenAI";
+  if (model.includes("/")) return model.split("/").pop();
+  return "AI 智能体";
+}
 
 // 各数字人的智能体人设提示词（System Prompt）
 export const agentSystemPrompts = {
@@ -112,14 +141,18 @@ export const agentTools = [
   },
   {
     name: "recommend_route",
-    description: "根据游客画像推荐个性化游览路线",
+    description: "根据游客在「定制你的专属路线」面板上选择的四项约束生成个性化游览路线",
     parameters: {
       type: "object",
       properties: {
-        age_group: { type: "string", enum: ["child", "adult", "senior"], description: "年龄段" },
-        companions: { type: "string", enum: ["solo", "family", "friends", "team"], description: "同行人" },
-        duration_hours: { type: "number", description: "可用时间（小时）" },
-        accessibility: { type: "boolean", description: "是否需要无障碍路线" }
+        // 与 RouteConfigurator 的四个胶囊分组一一对应（取值同 itineraryOptions）
+        duration: { type: "string", enum: ["half", "1d", "2d", "3d"], description: "游玩时长：半日游 / 1日游 / 2日游 / 3日游" },
+        interests: { type: "array", items: { type: "string", enum: ["文化祈福", "自然风光", "亲子游", "摄影打卡"] }, description: "兴趣偏好（面板为四选一，传一个元素）" },
+        budget: { type: "string", enum: ["under100", "100-300", "300-500", "above500"], description: "人均预算区间" },
+        pace: { type: "string", enum: ["relaxed", "moderate", "deep"], description: "游览节奏" },
+        age_group: { type: "string", enum: ["child", "adult", "senior"], description: "年龄段（可选）" },
+        companions: { type: "string", enum: ["solo", "family", "friends", "team"], description: "同行人（可选）" },
+        accessibility: { type: "boolean", description: "是否需要无障碍路线（可选）" }
       }
     }
   },
@@ -139,22 +172,31 @@ export const agentTools = [
 /**
  * 调用智能体 API
  *
- * 本函数实现了与通义千问智能体的对话调用。
+ * 本函数实现了与大模型智能体的对话调用。
  * 支持流式输出和非流式输出两种模式。
+ *
+ * 返回对象结构（契约 2.1 冻结项：fallback / content 字段名不可改）：
+ * - 成功（普通回复）: { content: string, emotion: string, source: "智谱 GLM 智能体" }
+ * - 成功（工具调用）: { toolCalls: Array, content: string, needToolExecution: true, source: "智谱 GLM 智能体（工具调用）" }
+ * - 无 API Key:    { fallback: true, message: string, source: "本地知识库降级" }
+ * - API 异常:      { fallback: true, message: string, source: "本地知识库降级", error: string }
  *
  * @param {string} guideKey - 数字人标识
  * @param {string} userMessage - 用户消息
  * @param {Array} conversationHistory - 对话历史
- * @param {Object} options - 可选参数
+ * @param {Object} options - 可选参数（{ stream: boolean }）
  * @returns {Promise<Object>} - 智能体回复
  */
 export async function callAgent(guideKey, userMessage, conversationHistory = [], options = {}) {
   const { apiKey, baseUrl, model } = agentConfig.api;
   const systemPrompt = agentSystemPrompts[guideKey];
+  const brand = agentLabel();
+  // 路线规划这类「只要一段 JSON」的场景不需要工具，关掉 tools 可避免模型返回 tool_calls
+  const useTools = options.tools !== false;
 
   // 如果没有配置 API Key，回退到本地知识库
   if (!apiKey) {
-    return { fallback: true, message: "智能体 API 未配置，使用本地知识库模式" };
+    return { fallback: true, message: "智能体 API 未配置，使用本地知识库模式", source: "本地知识库降级" };
   }
 
   // 构建消息列表
@@ -165,7 +207,9 @@ export async function callAgent(guideKey, userMessage, conversationHistory = [],
   ];
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    // 厂商文档里的 baseUrl 常带结尾斜杠，这里归一化，避免拼出 //chat/completions
+    const endpoint = `${String(baseUrl).replace(/\/+$/, "")}/chat/completions`;
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -174,12 +218,11 @@ export async function callAgent(guideKey, userMessage, conversationHistory = [],
       body: JSON.stringify({
         model,
         messages,
-        tools: agentTools.map(tool => ({
-          type: "function",
-          function: tool
-        })),
+        ...(useTools
+          ? { tools: agentTools.map((tool) => ({ type: "function", function: tool })) }
+          : {}),
         temperature: 0.7,
-        max_tokens: 800,
+        max_tokens: 1000,
         stream: options.stream || false
       })
     });
@@ -192,36 +235,41 @@ export async function callAgent(guideKey, userMessage, conversationHistory = [],
     const choice = data.choices?.[0];
 
     if (choice?.message?.tool_calls?.length > 0) {
-      // 智能体调用了工具，需要执行工具并返回结果
+      // 智能体请求调用工具：返回工具调用列表与说明文本
+      // 调用方（AssistantPanel）需自行决定如何执行（当前默认降级到本地知识库）
       return {
         toolCalls: choice.message.tool_calls,
-        content: choice.message.content,
-        needToolExecution: true
+        content: choice.message.content || "",
+        needToolExecution: true,
+        source: `${brand} 智能体（工具调用）`
       };
     }
 
+    const replyText = choice?.message?.content || "抱歉，我一时没有想出怎么回答。";
     return {
-      content: choice?.message?.content || "抱歉，我一时没有想出怎么回答。",
-      emotion: extractEmotion(choice?.message?.content),
-      source: "Qwen 智能体"
+      content: replyText,
+      emotion: extractEmotion(replyText),
+      source: `${brand} 智能体`
     };
   } catch (error) {
     console.error("智能体调用失败:", error);
-    return { fallback: true, message: "智能体调用失败，正在切换到本地模式", error: error.message };
+    return { fallback: true, message: "智能体调用失败，正在切换到本地模式", source: "本地知识库降级", error: error.message };
   }
 }
 
 /**
  * 从回复内容中提取情感 emoji
+ * 规则按关键词命中顺序返回，命中越长越靠前
  */
 function extractEmotion(content) {
   if (!content) return "😊";
-  if (/开心|高兴|太好了|真棒/.test(content)) return "😄";
-  if (/遗憾|抱歉|可惜/.test(content)) return "😔";
-  if (/注意|小心|提醒|建议/.test(content)) return "⚠️";
-  if (/美|漂亮|好看|壮观/.test(content)) return "✨";
-  if (/历史|文化|故事/.test(content)) return "📚";
-  if (/路线|推荐|建议/.test(content)) return "🧭";
+  // 注意：先检测更具体的"警告/遗憾"类情绪，再检测通用"开心/美"
+  if (/遗憾|抱歉|可惜|对不起/.test(content)) return "😔";
+  if (/注意|小心|提醒|警告|危险/.test(content)) return "⚠️";
+  if (/历史|文化|故事|文献|典故/.test(content)) return "📚";
+  if (/路线|推荐|建议|导航/.test(content)) return "🧭";
+  if (/美|漂亮|好看|壮观|精彩/.test(content)) return "✨";
+  if (/开心|高兴|太好了|真棒|祝贺/.test(content)) return "😄";
   return "😊";
 }
 

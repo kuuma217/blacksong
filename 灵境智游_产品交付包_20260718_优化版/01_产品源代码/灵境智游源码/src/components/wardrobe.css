@@ -1,0 +1,579 @@
+/* ==========================================================
+   我的衣橱 · 整套装扮选择（WardrobePage）
+
+   基准：与其它设计页同一画布比例 1960×1109，
+   页面高度取 min(视口宽度换算, 100vh)，保证桌面端单屏呈现、不产生长页面。
+   顶部导航条为设计图原图层（项目公共导航绘制在设计图内），
+   其余区域全部由 React 重建，旧的分项换装 UI 不再出现。
+   ========================================================== */
+
+.wb-page {
+  position: relative;
+  width: 100%;
+  height: min(calc(100vw * 1109 / 1960), 100vh);
+  min-height: 600px;
+  overflow: hidden;
+  background: #0a1d19;
+  color: #f3e8c9;
+  font-family: "Songti SC", SimSun, STSong, "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  isolation: isolate;
+  /* 左侧构图微调旋钮：只动这三个变量即可整体平移/缩放，不影响其它任何样式
+     --wb-figure-x   人物中心，相对左侧栏（52%）宽度的百分比（48% ≈ 页面 25%，正好落在石台上方）
+     --wb-figure-h   人物高度，相对左侧栏高度的百分比
+     --wb-figure-bottom 人物脚部离左侧栏底部的距离 */
+  --wb-figure-x: 48%;
+  --wb-figure-h: 76%;
+  --wb-figure-bottom: 8%;
+}
+
+/* ---------- 顶部原导航条（保持公共导航位置与样式） ---------- */
+
+.wb-nav-art {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  clip-path: inset(0 0 91.4% 0);
+  pointer-events: none;
+  user-select: none;
+}
+
+.wb-nav-hotspot {
+  z-index: 5;
+}
+
+/* ---------- 山水氛围底（旧设计图整体虚化，只留色彩与光影） ---------- */
+
+/* 山水实景背景：整幅铺满页面（含右侧面板四周），不再裁成左侧一条
+   原图 1672×940（1.779），容器约 1.925，cover 只裁掉上下各约 3.8%，横向不裁 → 构图与原图一致：
+   左侧石台约在页面 17%~33%（中心 25%），大佛约 49%，夕阳约 55%。 */
+.wb-bg {
+  position: absolute;
+  inset: 8.2% 0 0 0;
+  z-index: 0;
+  background-image: url("/assets/background.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #0a1d19;
+  filter: saturate(1.04) brightness(0.96);
+}
+
+/* 极轻遮罩：只压顶部（导航/标题可读）与底部（人物落地），左侧略压一点衬标题。
+   背景已整幅铺满，因此这里不再向右渐变成墨绿色，页面四周都保留山水原貌。 */
+.wb-veil {
+  position: absolute;
+  inset: 8.2% 0 0 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 44% at 26% 62%, rgba(255, 226, 170, 0.12), rgba(255, 226, 170, 0) 72%),
+    linear-gradient(180deg, rgba(6, 22, 19, 0.34) 0%, rgba(6, 22, 19, 0.06) 26%, rgba(6, 22, 19, 0) 44%),
+    radial-gradient(120% 58% at 50% 104%, rgba(4, 18, 15, 0.34), rgba(4, 18, 15, 0) 62%),
+    linear-gradient(90deg, rgba(6, 22, 19, 0.2) 0%, rgba(6, 22, 19, 0) 36%);
+}
+
+/* ---------- 左侧：标题 + 人物立绘 ---------- */
+
+.wb-left {
+  position: absolute;
+  left: 0;
+  top: 8.2%;
+  bottom: 0;
+  width: 52%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.wb-title {
+  position: absolute;
+  left: 4.2%;
+  top: 7%;
+  max-width: 70%;
+}
+
+.wb-title-mark {
+  display: block;
+  font-size: clamp(14px, 1.25vw, 22px);
+  color: rgba(226, 194, 132, 0.85);
+  letter-spacing: 0.1em;
+}
+
+.wb-title h1 {
+  margin: 0.12em 0 0;
+  font-size: clamp(24px, 2.45vw, 44px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.15;
+  color: #f7ecd2;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.55);
+}
+
+.wb-title p {
+  margin: 0.55em 0 0;
+  font-size: clamp(9px, 0.78vw, 13px);
+  letter-spacing: 0.3em;
+  color: rgba(243, 232, 201, 0.76);
+  white-space: nowrap;
+}
+
+/* 立绘落地点：与人物脚部同一中心、同一高度的贴地光晕 + 接触阴影，
+   让人物与背景石台的接触关系更明确（不改动背景原图） */
+.wb-platform {
+  position: absolute;
+  left: calc(var(--wb-figure-x) - 16%);
+  bottom: calc(var(--wb-figure-bottom) - 0.2%);
+  width: 32%;
+  height: 8%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 62%, rgba(24, 16, 8, 0.34), rgba(24, 16, 8, 0) 62%),
+    radial-gradient(ellipse at center, rgba(238, 214, 165, 0.3), rgba(238, 214, 165, 0.08) 58%, rgba(238, 214, 165, 0) 76%);
+  filter: blur(0.5px);
+}
+
+.wb-figure {
+  position: absolute;
+  left: var(--wb-figure-x);
+  bottom: var(--wb-figure-bottom);
+  transform: translateX(-50%);
+  height: var(--wb-figure-h);
+  width: auto;
+  max-width: 90%;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.45));
+  animation: wb-figure-in 0.42s cubic-bezier(0.22, 0.8, 0.3, 1) both;
+}
+
+@keyframes wb-figure-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.985); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ---------- 右侧：米白鎏金套装面板 ---------- */
+
+.wb-panel {
+  position: absolute;
+  left: 52.4%;
+  top: 15.5%;
+  width: 44.6%;
+  height: 70%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 0.55vw, 12px);
+  padding: clamp(10px, 1vw, 19px) clamp(11px, 1.1vw, 21px);
+  overflow: hidden;
+  border: 1px solid rgba(184, 137, 63, 0.55);
+  border-radius: clamp(10px, 0.9vw, 17px);
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 62%),
+    linear-gradient(178deg, #fdfaf1 0%, #f7efdd 58%, #f1e6d0 100%);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.44),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    inset 0 0 0 5px rgba(253, 250, 241, 0.92),
+    inset 0 0 0 6px rgba(200, 164, 95, 0.32);
+  color: #2b4b3f;
+}
+
+.wb-panel-head {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: clamp(5px, 0.4vw, 8px);
+  border-bottom: 1px solid rgba(184, 137, 63, 0.28);
+}
+
+.wb-panel-head h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.42em;
+  font-size: clamp(14px, 1.24vw, 22px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #24503f;
+}
+
+/* 面板标题左侧的中式莲纹装饰（对应参考图标题前的花纹） */
+.wb-panel-mark {
+  font-size: 0.8em;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #b8893f;
+}
+
+.wb-panel-head p {
+  margin: 0;
+  font-size: clamp(8px, 0.6vw, 10.5px);
+  letter-spacing: 0.14em;
+  color: #8d9a92;
+}
+
+/* 卡片区 + 详情栏 */
+.wb-panel-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 29%;
+  gap: clamp(8px, 0.8vw, 15px);
+}
+
+.wb-cards-wrap {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4px, 0.4vw, 7px);
+}
+
+/* 一行四张，第二行三张（第七张自然落到第二行左侧） */
+.wb-cards {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, max-content));
+  align-content: center;
+  gap: clamp(5px, 0.5vw, 10px);
+}
+
+.wb-cards li {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.wb-card {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(3px, 0.3vw, 5px);
+  padding: clamp(5px, 0.45vw, 8px);
+  /* 参考图卡片：象牙白底 + 细鎏金外框 + 内侧一圈淡金发丝线 + 柔和投影 */
+  border: 1px solid rgba(184, 137, 63, 0.42);
+  border-radius: clamp(8px, 0.72vw, 14px);
+  background: linear-gradient(180deg, #fffefa 0%, #fdf8ec 64%, #f7eeda 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    inset 0 0 0 3px rgba(200, 164, 95, 0.14),
+    0 3px 8px rgba(120, 86, 30, 0.12);
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.wb-card:hover {
+  border-color: rgba(184, 137, 63, 0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    inset 0 0 0 3px rgba(200, 164, 95, 0.2),
+    0 8px 20px rgba(120, 86, 30, 0.18);
+}
+
+.wb-card.selected {
+  border-color: #b8893f;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    inset 0 0 0 3px rgba(200, 164, 95, 0.28),
+    0 0 0 2px rgba(184, 137, 63, 0.32),
+    0 10px 22px rgba(120, 86, 30, 0.22);
+}
+
+.wb-card.locked {
+  cursor: not-allowed;
+  background: linear-gradient(180deg, #f4f1e8, #e9e3d6);
+}
+
+/* 缩略图：与奖励区共用当前数字人的套装素材。 */
+.wb-thumb {
+  position: relative;
+  flex: 0 0 auto;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 5 / 7;
+  border-radius: clamp(4px, 0.36vw, 7px);
+  background: radial-gradient(120% 82% at 50% 16%, #fdf7e9, #e8dcc3 88%);
+  box-shadow: inset 0 0 0 1px rgba(184, 137, 63, 0.28);
+}
+
+.wb-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* 与当前数字人素材居中对齐。 */
+  object-position: center;
+}
+
+.wb-card.locked .wb-thumb img {
+  filter: grayscale(1) contrast(0.92) brightness(1.02);
+  opacity: 0.55;
+}
+
+.wb-lock {
+  position: absolute;
+  right: 6%;
+  top: 6%;
+  width: clamp(12px, 1vw, 18px);
+  height: clamp(12px, 1vw, 18px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(76, 84, 78, 0.82);
+  color: #efe9db;
+}
+
+.wb-lock svg {
+  width: 52%;
+  height: 52%;
+}
+
+.wb-card-name {
+  flex: 0 0 auto;
+  font-size: clamp(12px, 0.95vw, 17px);
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: #24503f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wb-card.locked .wb-card-name {
+  color: #7c867f;
+}
+
+.wb-badge {
+  flex: 0 0 auto;
+  align-self: center;
+  padding: 0.14em 0.8em;
+  border-radius: 999px;
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+  font-size: clamp(9px, 0.72vw, 12.5px);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.wb-badge.current {
+  background: #e3cd9c;
+  color: #24503f;
+  box-shadow: inset 0 0 0 1px rgba(184, 137, 63, 0.7);
+}
+
+.wb-badge.open {
+  background: #1b5a4c;
+  color: #f3e8c9;
+}
+
+.wb-badge.locked {
+  background: #8d978f;
+  color: #f6f2e6;
+}
+
+.wb-hint {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: clamp(7.5px, 0.55vw, 10px);
+  letter-spacing: 0.08em;
+  color: #94a099;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 详情栏 ---------- */
+
+.wb-detail {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 0.5vw, 10px);
+  padding-left: clamp(9px, 0.95vw, 18px);
+}
+
+/* 鎏金竖分隔线：两端渐隐 + 中部菱形装饰（对应参考图详情栏左侧的金线） */
+.wb-detail::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.5%;
+  bottom: 1.5%;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(184, 137, 63, 0) 0%, rgba(184, 137, 63, 0.6) 16%, rgba(184, 137, 63, 0.6) 84%, rgba(184, 137, 63, 0) 100%);
+}
+
+.wb-detail::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 45%;
+  width: 5px;
+  height: 5px;
+  background: #b8893f;
+  transform: rotate(45deg);
+}
+
+/* 详情大图：竖版画框（参考图右侧那张竖图）+ 象牙白衬边 + 鎏金细框
+   取景与卡片一致：右侧取景裁掉原图竖排标题字，人物主体放大 */
+.wb-detail-preview {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 86%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid rgba(184, 137, 63, 0.8);
+  border-radius: clamp(6px, 0.55vw, 10px);
+  background: radial-gradient(120% 82% at 50% 14%, #fdf7e9, #e6d9bf 90%);
+  box-shadow: 0 12px 26px rgba(120, 86, 30, 0.22);
+}
+
+.wb-detail-preview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 253, 246, 0.92),
+    inset 0 0 0 5px rgba(200, 164, 95, 0.5);
+}
+
+.wb-detail-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  animation: wb-detail-in 0.35s ease both;
+}
+
+@keyframes wb-detail-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* 套装名称：参考图样式——宋体加粗 + 右侧延伸的金色细线 */
+.wb-detail h3 {
+  flex: 0 0 auto;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: clamp(16px, 1.35vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  color: #1f4a3c;
+}
+
+.wb-detail h3::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(184, 137, 63, 0.55), rgba(184, 137, 63, 0));
+}
+
+.wb-desc {
+  flex: 0 0 auto;
+  margin: 0;
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+  font-size: clamp(11px, 0.86vw, 15px);
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  color: #4f5c55;
+}
+
+.wb-features {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 0.45vw, 9px);
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+  font-size: clamp(10px, 0.8vw, 14px);
+  letter-spacing: 0.03em;
+  color: #4a5a52;
+}
+
+.wb-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 三条特色前的金色图标（莲纹 / 花钿 / 星芒），对应参考图 */
+.wb-feat-icon {
+  flex: 0 0 auto;
+  font-size: 0.95em;
+  line-height: 1;
+  color: #b8893f;
+}
+
+.wb-save {
+  flex: 0 0 auto;
+  margin-top: auto;
+  width: 100%;
+  padding: clamp(10px, 0.85vw, 15px) clamp(10px, 1vw, 18px);
+  border: 1px solid rgba(226, 194, 132, 0.9);
+  border-radius: clamp(8px, 0.7vw, 12px);
+  background: linear-gradient(180deg, #1e6052, #123f36);
+  color: #f7ecd2;
+  font-family: inherit;
+  font-size: clamp(13px, 1vw, 17px);
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  box-shadow:
+    0 12px 24px rgba(11, 42, 35, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 0 3px rgba(18, 63, 54, 0.92),
+    inset 0 0 0 4px rgba(226, 194, 132, 0.36);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.wb-save:hover {
+  background: linear-gradient(180deg, #23705f, #174f43);
+}
+
+.wb-save:active {
+  transform: translateY(1px);
+}
+
+.wb-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- 窄屏兜底：仍保持单屏，只收窄两栏比例 ---------- */
+
+@media (max-width: 1180px) {
+  .wb-page { min-height: 560px; }
+  .wb-left { width: 48%; }
+  .wb-panel { left: 48%; width: 49%; height: 72%; top: 15.4%; }
+  .wb-panel-body { grid-template-columns: minmax(0, 1fr) 34%; }
+  .wb-figure { height: 70%; }
+}

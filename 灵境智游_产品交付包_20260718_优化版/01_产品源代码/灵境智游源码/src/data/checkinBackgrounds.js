@@ -5,14 +5,15 @@
 
 export const checkinBackgrounds = [
   {
-    id: "zhaobi",
-    title: "灵山照壁 · 初见灵山",
-    description: "与「华夏第一壁」合影，开启今天的旅程。",
+    // 第 4 个打卡站为「五印坛城」：与打卡集章设计图、个人中心「已去过的景点」保持一致
+    id: "wuyin",
+    title: "五印坛城 · 坛城寻境",
+    description: "在藏式坛城的金顶与彩绘前留影，读懂「五印」的象征。",
     // 使用渐变色 + 文字作为简易背景（无需额外图片资源）
-    gradient: "linear-gradient(135deg, #1a4a3a 0%, #2d7a5f 40%, #4a9a7a 70%, #8bc4a8 100%)",
-    overlayText: "灵山照壁",
-    overlaySubtext: "初见灵山 · 华夏第一壁",
-    icon: "🏯",
+    gradient: "linear-gradient(135deg, #3a2a1a 0%, #7a4a1f 30%, #b07a2a 55%, #d8a84a 75%, #f0d28a 100%)",
+    overlayText: "五印坛城",
+    overlaySubtext: "坛城寻境 · 藏式坛城",
+    icon: "🛕",
     // 预设的装饰元素位置（CSS定位信息）
     decorations: [
       { type: "stamp", text: "灵山胜境", position: "top-right" },

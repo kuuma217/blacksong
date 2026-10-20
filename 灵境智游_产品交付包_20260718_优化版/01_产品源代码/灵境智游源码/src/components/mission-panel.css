@@ -1,0 +1,1096 @@
+/* ============================================================
+ * 灵境智游 · 打卡与装扮 · 组件级样式
+ * 说明：所有规则以 `.mission-board` 为根选择器嵌套，避免污染
+ *       C 成员维护的全局 styles.css；本文件新增需通报 C 成员。
+ * 配色：深青绿 (#1f453c) · 鎏金 (#bd9657) · 米白 (#fffdf8)
+ * 主题：无锡灵山胜境 · 新中式高级感
+ * ============================================================ */
+
+.mission-board {
+  --mp-jade: #285f51;
+  --mp-jade-deep: #1f453c;
+  --mp-jade-2: #3b7c69;
+  --mp-jade-pale: #e8f0eb;
+  --mp-gold: #bd9657;
+  --mp-gold-deep: #8a6a3a;
+  --mp-gold-pale: #f2e6cd;
+  --mp-ivory: #fffdf8;
+  --mp-paper: #f8f5ed;
+  --mp-ink: #18342e;
+  --mp-ink-soft: #506760;
+  --mp-line: rgba(24, 52, 46, 0.12);
+  --mp-shadow: 0 24px 60px rgba(31, 72, 60, 0.12);
+  --mp-shadow-soft: 0 12px 30px rgba(38, 70, 61, 0.08);
+  --mp-radius-lg: 26px;
+  --mp-radius-md: 18px;
+  --mp-radius-sm: 12px;
+  font-family: var(--font-cn);
+  color: var(--mp-ink);
+}
+
+/* —— 整体布局：宽屏舒适，避免内容过长 —— */
+.mission-board .mp-shell {
+  display: grid;
+  gap: 22px;
+}
+
+.mission-board .mp-shell + .panel-loading {
+  margin-top: 12px;
+}
+
+/* ===================== 1. 页面标题区 ===================== */
+.mission-board .mp-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 28px;
+  align-items: stretch;
+  padding: 34px 38px;
+  border-radius: var(--mp-radius-lg);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255, 244, 199, 0.16), transparent 38%),
+    radial-gradient(circle at 18% 110%, rgba(255, 255, 255, 0.08), transparent 42%),
+    linear-gradient(135deg, #214e42 0%, #1f453c 55%, #16332b 100%);
+  color: #f6efde;
+  box-shadow: var(--mp-shadow);
+}
+
+/* 标题区装饰：右上角中式印章 */
+.mission-board .mp-hero::after {
+  content: "靈山四印";
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  font-family: "STKaiti", "KaiTi", "STSong", serif;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: #f2e6cd;
+  border: 1px solid rgba(242, 230, 205, 0.55);
+  border-radius: 8px;
+  text-align: center;
+  line-height: 1.2;
+  background: rgba(189, 150, 87, 0.12);
+  transform: rotate(-3deg);
+}
+
+.mission-board .mp-hero-text .eyebrow {
+  color: #dec79b;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mission-board .mp-title {
+  margin: 0;
+  font-family: "STKaiti", "KaiTi", "STSong", serif;
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.18;
+}
+
+.mission-board .mp-title em {
+  margin-left: 12px;
+  color: #e1c488;
+  font-style: normal;
+  letter-spacing: 0.16em;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.mission-board .mp-subtitle {
+  margin: 14px 0 0;
+  color: rgba(246, 239, 222, 0.78);
+  font-size: 14px;
+  line-height: 1.85;
+  max-width: 620px;
+}
+
+/* —— 进度显示 —— */
+.mission-board .mp-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.mission-board .mp-progress-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: "STKaiti", "KaiTi", serif;
+  color: #f6efde;
+}
+
+.mission-board .mp-progress-stat strong {
+  font-size: 32px;
+  font-weight: 700;
+  color: #f5dfa3;
+}
+
+.mission-board .mp-progress-stat em {
+  font-style: normal;
+  color: rgba(246, 239, 222, 0.65);
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.mission-board .mp-progress-track {
+  position: relative;
+  flex: 1;
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(246, 239, 222, 0.16);
+  overflow: hidden;
+}
+
+.mission-board .mp-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d8b36f, #f1d9a6);
+  transition: width 0.5s ease;
+}
+
+.mission-board .mp-progress-percent {
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: #f5dfa3;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+/* —— 标题区右侧奖励栏 —— */
+.mission-board .mp-reward-side {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 24px;
+  border-radius: var(--mp-radius-md);
+  border: 1px solid rgba(246, 239, 222, 0.18);
+  background: linear-gradient(160deg, rgba(255, 244, 199, 0.12), rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(6px);
+}
+
+.mission-board .mp-reward-side .tiny-label {
+  margin: 0 0 8px;
+  color: #dec79b;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.mission-board .mp-reward-side .next-name {
+  margin: 0;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 24px;
+  color: #f5dfa3;
+  letter-spacing: 0.05em;
+}
+
+.mission-board .mp-reward-side .next-hint {
+  margin: 10px 0 0;
+  color: rgba(246, 239, 222, 0.65);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.mission-board .mp-reward-side .seal-row {
+  display: flex;
+  gap: 7px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.mission-board .mp-reward-side .seal-row i {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 12px;
+  border-radius: 50%;
+  background: rgba(189, 150, 87, 0.5);
+  color: #f6efde;
+}
+
+.mission-board .mp-reward-side .seal-row i.done {
+  background: linear-gradient(135deg, #d8b36f, #8a6a3a);
+  color: #1f453c;
+  box-shadow: inset 0 0 0 1px rgba(255, 244, 199, 0.6);
+}
+
+/* ===================== 2. 主体两列布局 ===================== */
+.mission-board .mp-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.42fr);
+  gap: 22px;
+  align-items: flex-start;
+}
+
+/* ===================== 3. 景点打卡区 ===================== */
+.mission-board .mp-stations {
+  padding: 28px 30px;
+  border-radius: var(--mp-radius-lg);
+  background: rgba(255, 253, 248, 0.92);
+  border: 1px solid var(--mp-line);
+  box-shadow: var(--mp-shadow-soft);
+}
+
+.mission-board .mp-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--mp-line);
+}
+
+.mission-board .mp-section-head .tiny-label {
+  margin: 0 0 6px;
+  color: var(--mp-gold);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+}
+
+.mission-board .mp-section-head h3 {
+  margin: 0;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.mission-board .mp-section-head .section-aside {
+  color: var(--mp-ink-soft);
+  font-size: 12px;
+  text-align: right;
+  line-height: 1.6;
+}
+
+.mission-board .mp-stations-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.mission-board .mp-station {
+  position: relative;
+  padding: 22px 22px 20px;
+  border-radius: var(--mp-radius-md);
+  border: 1px solid var(--mp-line);
+  background: linear-gradient(180deg, #fffdf8 0%, #f8f5ed 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  overflow: hidden;
+}
+
+.mission-board .mp-station::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, transparent, var(--mp-gold) 50%, transparent);
+  opacity: 0.7;
+}
+
+.mission-board .mp-station:hover {
+  transform: translateY(-2px);
+  border-color: rgba(189, 150, 87, 0.4);
+  box-shadow: 0 18px 40px rgba(38, 70, 61, 0.1);
+}
+
+.mission-board .mp-station.complete {
+  border-color: rgba(40, 95, 81, 0.3);
+  background: linear-gradient(180deg, #f3efe3 0%, #e8efe9 100%);
+}
+
+.mission-board .mp-station.complete::before {
+  background: linear-gradient(90deg, transparent, var(--mp-jade) 50%, transparent);
+  opacity: 1;
+}
+
+.mission-board .mp-station-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mission-board .mp-station-index {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  background: rgba(189, 150, 87, 0.12);
+  color: var(--mp-gold-deep);
+  border: 1px solid rgba(189, 150, 87, 0.3);
+}
+
+.mission-board .mp-station.complete .mp-station-index {
+  background: linear-gradient(135deg, var(--mp-jade) 0%, var(--mp-jade-2) 100%);
+  color: #fffdf8;
+  border-color: transparent;
+}
+
+.mission-board .mp-station-status {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.1em;
+  background: rgba(189, 150, 87, 0.14);
+  color: var(--mp-gold-deep);
+  font-weight: 700;
+}
+
+.mission-board .mp-station.complete .mp-station-status {
+  background: rgba(40, 95, 81, 0.14);
+  color: var(--mp-jade);
+}
+
+.mission-board .mp-station.final .mp-station-status {
+  background: rgba(80, 60, 40, 0.15);
+  color: #6a4a2a;
+}
+
+.mission-board .mp-station-copy h4 {
+  margin: 0;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--mp-ink);
+}
+
+.mission-board .mp-station-copy small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--mp-ink-soft);
+}
+
+.mission-board .mp-station-bg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--mp-radius-sm);
+  color: #f6efde;
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-board .mp-station-bg-icon {
+  font-size: 22px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.mission-board .mp-station-bg-text {
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.mission-board .mp-station-action {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mission-board .mp-station-hint {
+  font-size: 11px;
+  color: var(--mp-ink-soft);
+  letter-spacing: 0.05em;
+}
+
+.mission-board .mp-station-btn {
+  border: 1px solid var(--mp-line);
+  padding: 9px 18px;
+  border-radius: 99px;
+  background: rgba(255, 253, 248, 0.85);
+  color: var(--mp-jade);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-board .mp-station-btn:hover:not(:disabled) {
+  border-color: rgba(189, 150, 87, 0.55);
+  background: var(--mp-jade-pale);
+  transform: translateY(-1px);
+}
+
+.mission-board .mp-station-btn:disabled {
+  color: #8a9994;
+  background: #eef2ef;
+  cursor: not-allowed;
+}
+
+.mission-board .mp-station-btn.primary {
+  background: linear-gradient(135deg, var(--mp-jade) 0%, var(--mp-jade-deep) 100%);
+  color: #fffdf8;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(40, 95, 81, 0.25);
+}
+
+.mission-board .mp-station-btn.primary:disabled {
+  background: linear-gradient(135deg, #6e8a82, #4a655e);
+  color: rgba(255, 253, 248, 0.7);
+  box-shadow: none;
+}
+
+/* ===================== 4. 装扮与奖励反馈区 ===================== */
+.mission-board .mp-side {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.mission-board .mp-card {
+  border-radius: var(--mp-radius-lg);
+  background: rgba(255, 253, 248, 0.92);
+  border: 1px solid var(--mp-line);
+  box-shadow: var(--mp-shadow-soft);
+  padding: 24px 24px 22px;
+}
+
+.mission-board .mp-card-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.mission-board .mp-card-head .tiny-label {
+  margin: 0 0 4px;
+  color: var(--mp-gold);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+}
+
+.mission-board .mp-card-head h3 {
+  margin: 0;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.mission-board .mp-card-head .head-aside {
+  color: var(--mp-gold-deep);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+/* —— 人物头像大展示 —— */
+.mission-board .mp-avatar {
+  position: relative;
+  height: 280px;
+  border-radius: var(--mp-radius-md);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 253, 248, 0.95), transparent 60%),
+    linear-gradient(160deg, #dfe7e2 0%, #ebe2cf 100%);
+  display: grid;
+  place-items: end center;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.mission-board .mp-avatar::before,
+.mission-board .mp-avatar::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(46, 98, 82, 0.18);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mission-board .mp-avatar::before {
+  width: 320px;
+  height: 320px;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mission-board .mp-avatar::after {
+  width: 260px;
+  height: 260px;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-color: rgba(189, 150, 87, 0.35);
+  border-style: dashed;
+}
+
+.mission-board .mp-avatar img {
+  height: 270px;
+  max-width: 92%;
+  object-fit: contain;
+  object-position: center bottom;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 18px 22px rgba(32, 63, 55, 0.18));
+}
+
+.mission-board .mp-avatar-name {
+  position: absolute;
+  left: 22px;
+  bottom: 18px;
+  z-index: 2;
+  color: #5d7368;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.mission-board .mp-avatar-name strong {
+  display: block;
+  margin-top: 2px;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 22px;
+  color: var(--mp-ink);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+/* —— 装扮选择网格 —— */
+.mission-board .mp-outfits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mission-board .mp-outfit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--mp-radius-sm);
+  border: 1px solid var(--mp-line);
+  background: #fffdf8;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-board .mp-outfit:hover {
+  border-color: rgba(189, 150, 87, 0.55);
+  background: var(--mp-jade-pale);
+}
+
+.mission-board .mp-outfit.active {
+  border-color: rgba(189, 150, 87, 0.7);
+  background: linear-gradient(135deg, #f3ead5 0%, #fffdf8 100%);
+  box-shadow: 0 6px 14px rgba(189, 150, 87, 0.18);
+}
+
+.mission-board .mp-outfit.locked {
+  opacity: 0.55;
+}
+
+.mission-board .mp-outfit-swatch {
+  flex: 0 0 34px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #dde8df, #6d9b8e);
+  border: 1px solid rgba(189, 150, 87, 0.35);
+}
+
+.mission-board .mp-outfit-swatch.jade   { background: linear-gradient(135deg, #d6e0db, #4f8273); }
+.mission-board .mp-outfit-swatch.lotus  { background: linear-gradient(135deg, #f0d6cf, #b990a0); }
+.mission-board .mp-outfit-swatch.sunset { background: linear-gradient(135deg, #f1cd8d, #b85f43); }
+.mission-board .mp-outfit-swatch.night  { background: linear-gradient(135deg, #263c4e, #b18a52); }
+
+.mission-board .mp-outfit-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.mission-board .mp-outfit-label strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mp-ink);
+  letter-spacing: 0.05em;
+}
+
+.mission-board .mp-outfit-label small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--mp-ink-soft);
+}
+
+.mission-board .mp-outfit-label small.unlocked {
+  color: var(--mp-jade);
+}
+
+/* —— 5. 奖励图谱 —— */
+.mission-board .mp-reward-track {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mission-board .mp-reward {
+  position: relative;
+  padding: 14px 14px 12px;
+  border-radius: var(--mp-radius-sm);
+  border: 1px solid var(--mp-line);
+  background: linear-gradient(180deg, #fffdf8, #f5f0e1);
+  overflow: hidden;
+}
+
+.mission-board .mp-reward.unlocked {
+  border-color: rgba(189, 150, 87, 0.5);
+  background: linear-gradient(180deg, #f6efd9, #ecdfba);
+}
+
+.mission-board .mp-reward::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(189, 150, 87, 0.35);
+  border-radius: 9px;
+  pointer-events: none;
+}
+
+.mission-board .mp-reward-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mission-board .mp-reward-head .reward-tier {
+  font-family: Georgia, serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mp-gold-deep);
+  letter-spacing: 0.1em;
+}
+
+.mission-board .mp-reward-head .reward-state {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(80, 100, 90, 0.12);
+  color: #5b6e66;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.mission-board .mp-reward.unlocked .reward-state {
+  background: rgba(40, 95, 81, 0.15);
+  color: var(--mp-jade);
+}
+
+.mission-board .mp-reward strong {
+  display: block;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--mp-ink);
+}
+
+.mission-board .mp-reward small {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--mp-ink-soft);
+  line-height: 1.6;
+}
+
+/* —— 矢量高清背景插画（铺满地图区，任意分辨率不失真）—— */
+.mission-board .mp-scenery {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+}
+
+/* 景点图标颜色（简笔画 SVG 使用 currentColor 描边） */
+.mission-board .mp-marker-icon {
+  color: #2c5c4d;
+}
+
+.mission-board .mp-marker.done .mp-marker-icon {
+  color: #1f453c;
+}
+
+.mission-board .mp-marker.locked .mp-marker-icon {
+  color: #59635e;
+}
+
+.mission-board .mp-station-list li i svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ===================== 4. 上传照片弹窗 ===================== */
+
+/* 遮罩：降低模糊强度、提高透明度；弹窗改为靠上显示 */
+.modal-backdrop.mp-upload-backdrop {
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 9vh;
+  background: rgba(11, 26, 22, 0.4);
+  backdrop-filter: blur(5px);
+}
+
+/* 打卡集章页：面板仅作为弹窗宿主、内部无内容时，不占据下方空间
+   （.page-panel 自带 116px 内边距，空容器会撑出一块多余空白） */
+#panelSection.page-panel:empty {
+  padding: 0;
+  min-height: 0;
+}
+
+.mp-upload-modal {
+  width: min(560px, 100%);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 30px 30px 26px;
+  border-radius: 22px;
+  background: var(--mp-ivory);
+  border: 1px solid rgba(189, 150, 87, 0.45);
+  box-shadow: 0 35px 100px rgba(11, 30, 25, 0.35);
+  position: relative;
+  animation: mpModalIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes mpModalIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mp-upload-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--mp-line);
+}
+
+.mp-upload-head .tiny-label {
+  margin: 0 0 6px;
+  color: var(--mp-gold);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+}
+
+.mp-upload-head h3 {
+  margin: 0;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.mp-upload-head small {
+  display: block;
+  margin-top: 6px;
+  color: var(--mp-ink-soft);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.mp-upload-icon {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--mp-jade);
+  background: linear-gradient(160deg, var(--mp-jade-pale), #f3ead5);
+  border: 1px solid rgba(189, 150, 87, 0.4);
+}
+
+.mp-upload-drop {
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px;
+  border: 1.5px dashed rgba(40, 95, 81, 0.35);
+  border-radius: 16px;
+  background: #f7faf8;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.mp-upload-drop:hover {
+  border-color: rgba(189, 150, 87, 0.7);
+  background: #fbf6ea;
+}
+
+.mp-upload-drop.dragging {
+  border-color: var(--mp-gold);
+  background: var(--mp-gold-pale);
+  box-shadow: inset 0 0 0 3px rgba(189, 150, 87, 0.15);
+}
+
+.mp-upload-drop.rejected {
+  border-color: rgba(180, 92, 78, 0.65);
+  background: #fdf3f1;
+}
+
+.mp-upload-plus {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 24px;
+  color: #fffdf8;
+  background: linear-gradient(135deg, var(--mp-jade), var(--mp-jade-deep));
+  box-shadow: 0 10px 22px rgba(40, 95, 81, 0.25);
+}
+
+.mp-upload-drop strong {
+  font-size: 13px;
+  color: var(--mp-ink);
+}
+
+.mp-upload-drop small {
+  font-size: 11px;
+  color: var(--mp-ink-soft);
+}
+
+.mp-upload-preview {
+  max-width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(38, 70, 61, 0.16);
+}
+
+.mp-upload-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 14px 0 0;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  background: var(--mp-jade-pale);
+  color: var(--mp-jade);
+}
+
+.mp-upload-status.busy {
+  background: #eef4f1;
+  color: #4d6b60;
+}
+
+.mp-upload-status.rejected {
+  background: #fbeae7;
+  color: #a8503f;
+  font-weight: 700;
+}
+
+.mp-upload-hint {
+  margin: 8px 0 0;
+  padding-left: 14px;
+  font-size: 11px;
+  color: #8a6a3a;
+  border-left: 3px solid rgba(189, 150, 87, 0.6);
+}
+
+.mp-upload-spinner {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(40, 95, 81, 0.25);
+  border-top-color: var(--mp-jade);
+  animation: mpSpin 0.8s linear infinite;
+}
+
+@keyframes mpSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 演示版声明：如实告知用户尚未接入景点 AI 识别，避免被误认为已核验 */
+.mp-upload-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #6b6455;
+  background: #f5f2ea;
+  border: 1px dashed rgba(189, 150, 87, 0.5);
+}
+
+.mp-upload-notice span {
+  flex: 0 0 15px;
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 9px;
+  color: #fffdf8;
+  background: var(--mp-gold);
+}
+
+.mp-upload-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.mp-upload-btn {
+  padding: 11px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--mp-line);
+  background: #fffdf8;
+  color: var(--mp-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mp-upload-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.mp-upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mp-upload-btn.primary {
+  border-color: rgba(40, 95, 81, 0.4);
+  background: var(--mp-jade-pale);
+  color: var(--mp-jade);
+}
+
+.mp-upload-btn.gold {
+  border: 0;
+  background: linear-gradient(135deg, #d8b36f, #bd9657);
+  color: #1f453c;
+  box-shadow: 0 8px 20px rgba(189, 150, 87, 0.3);
+}
+
+/* ===================== 响应式 ===================== */
+@media (max-width: 1280px) {
+  .mission-board .mp-hero {
+    grid-template-columns: 1fr;
+  }
+  .mission-board .mp-hero::after {
+    top: 18px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .mission-board .mp-layout {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+@media (max-width: 980px) {
+  .mission-board .mp-title {
+    font-size: 30px;
+  }
+  .mission-board .mp-title em {
+    display: block;
+    margin: 6px 0 0;
+    font-size: 18px;
+  }
+  .mission-board .mp-stations-grid {
+    grid-template-columns: 1fr;
+  }
+  .mission-board .mp-layout {
+    grid-template-columns: 1fr;
+  }
+  .mission-board .mp-hero {
+    padding: 26px 26px;
+  }
+  .mission-board .mp-stations {
+    padding: 22px 22px;
+  }
+  .mission-board .mp-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 680px) {
+  .mission-board .mp-hero {
+    padding: 22px 18px;
+  }
+  .mission-board .mp-hero::after {
+    width: 52px;
+    height: 52px;
+    font-size: 11px;
+  }
+  .mission-board .mp-progress-row {
+    flex-wrap: wrap;
+  }
+  .mission-board .mp-progress-track {
+    flex: 1 1 100%;
+  }
+  .mission-board .mp-progress-percent {
+    width: 100%;
+    text-align: right;
+  }
+  .mission-board .mp-avatar {
+    height: 240px;
+  }
+  .mission-board .mp-avatar img {
+    height: 230px;
+  }
+  .mission-board .mp-outfits,
+  .mission-board .mp-reward-track {
+    grid-template-columns: 1fr;
+  }
+  .mission-board .mp-station {
+    padding: 18px 16px;
+  }
+}

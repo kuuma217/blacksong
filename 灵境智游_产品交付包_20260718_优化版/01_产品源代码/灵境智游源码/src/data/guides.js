@@ -3,8 +3,8 @@ export const guides = {
     key: "xiaoling",
     name: "小灵",
     englishName: "Xiaoling",
-    image: "/assets/xiaoling.webp",
-    thumbnail: "/assets/xiaoling-thumb.webp",
+    image: "/assets/xiaoling.webp?v=png20261020",
+    thumbnail: "/assets/xiaoling-thumb.webp?v=png20261020",
     trait: "古灵精怪 · 儿童陪伴",
     voiceLabel: "清亮活泼童声",
     emotion: "😄",
@@ -20,8 +20,8 @@ export const guides = {
     key: "lingruo",
     name: "灵若",
     englishName: "Lingruo",
-    image: "/assets/lingruo.webp",
-    thumbnail: "/assets/lingruo-thumb.webp",
+    image: "/assets/lingruo.webp?v=png20261020",
+    thumbnail: "/assets/lingruo-thumb.webp?v=png20261020",
     trait: "温柔亲切 · 人文讲解",
     voiceLabel: "温润叙事女声",
     emotion: "😊",
@@ -37,8 +37,8 @@ export const guides = {
     key: "xingyuan",
     name: "行远",
     englishName: "Xingyuan",
-    image: "/assets/xingyuan.webp",
-    thumbnail: "/assets/xingyuan-thumb.webp",
+    image: "/assets/xingyuan.webp?v=png20261020",
+    thumbnail: "/assets/xingyuan-thumb.webp?v=png20261020",
     trait: "沉稳可靠 · 深度文化",
     voiceLabel: "清晰沉稳男声",
     emotion: "🙂",
@@ -54,8 +54,8 @@ export const guides = {
     key: "dongling",
     name: "冬灵",
     englishName: "Dongling",
-    image: "/assets/dongling.webp",
-    thumbnail: "/assets/dongling-thumb.webp",
+    image: "/assets/dongling.webp?v=png20261020",
+    thumbnail: "/assets/dongling-thumb.webp?v=png20261020",
     trait: "和蔼慈祥 · 银发关怀",
     voiceLabel: "慈和舒缓长者声",
     emotion: "🤗",
@@ -71,8 +71,8 @@ export const guides = {
     key: "wailing",
     name: "外灵",
     englishName: "Wailing",
-    image: "/assets/wailing.webp",
-    thumbnail: "/assets/wailing-thumb.webp",
+    image: "/assets/wailing.webp?v=png20261020",
+    thumbnail: "/assets/wailing-thumb.webp?v=png20261020",
     trait: "开朗友好 · 中英双语",
     voiceLabel: "自然双语男声",
     emotion: "👋",
@@ -87,3 +87,56 @@ export const guides = {
 };
 
 export const guideList = Object.values(guides);
+
+// 七套服装各使用一张对应 PNG；复用已有素材文件位置。
+const guideOutfitImages = {
+  xiaoling: [
+    "/assets/xiaoling.webp?v=png20261020",
+    "/assets/xiaoling-sunset.webp?v=png20261020",
+    "/assets/xiaoling-lotus.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/xiaoling-sunset.png", import.meta.url).href,
+    new URL("../../source-assets/wardrobe-png-originals/xiaoling-night.png", import.meta.url).href,
+    "/assets/xiaoling-night.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/xiaoling-lotus.png", import.meta.url).href,
+  ],
+  lingruo: [
+    "/assets/lingruo.webp?v=png20261020",
+    "/assets/lingruo-sunset.webp?v=png20261020",
+    "/assets/lingruo-lotus.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/lingruo-sunset.png", import.meta.url).href,
+    new URL("../../source-assets/wardrobe-png-originals/lingruo-night.png", import.meta.url).href,
+    "/assets/lingruo-night.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/lingruo-lotus.png", import.meta.url).href,
+  ],
+  xingyuan: [
+    "/assets/xingyuan.webp?v=png20261020",
+    "/assets/xingyuan-sunset.webp?v=png20261020",
+    "/assets/xingyuan-lotus.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/xingyuan-sunset.png", import.meta.url).href,
+    new URL("../../source-assets/wardrobe-png-originals/xingyuan-night.png", import.meta.url).href,
+    "/assets/xingyuan-night.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/xingyuan-lotus.png", import.meta.url).href,
+  ],
+  dongling: [
+    "/assets/dongling.webp?v=png20261020",
+    "/assets/dongling-sunset.webp?v=png20261020",
+    "/assets/dongling-lotus.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/dongling-sunset.png", import.meta.url).href,
+    new URL("../../source-assets/wardrobe-png-originals/dongling-night.png", import.meta.url).href,
+    "/assets/dongling-night.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/dongling-lotus.png", import.meta.url).href,
+  ],
+  wailing: [
+    "/assets/wailing.webp?v=png20261020",
+    "/assets/wailing-sunset.webp?v=png20261020",
+    "/assets/wailing-lotus.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/wailing-sunset.png", import.meta.url).href,
+    new URL("../../source-assets/wardrobe-png-originals/wailing-night.png", import.meta.url).href,
+    "/assets/wailing-night.webp?v=png20261020",
+    new URL("../../source-assets/wardrobe-png-originals/wailing-lotus.png", import.meta.url).href,
+  ],
+};
+
+export function getGuideOutfitImages(guideKey = "lingruo") {
+  return guideOutfitImages[guideKey] || guideOutfitImages.lingruo;
+}

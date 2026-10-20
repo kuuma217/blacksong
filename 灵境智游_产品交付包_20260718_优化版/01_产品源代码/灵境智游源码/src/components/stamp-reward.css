@@ -1,0 +1,171 @@
+/* ==========================================================
+   打卡集章 · 奖励收集区动态覆盖（StampRewardOverlay）
+
+   坐标基准：stamp-panel.webp（1960×1109），百分比 = 像素 / 1960 或 / 1109，
+   与背景图同容器（.hero-canvas）定位，缩放时随图对齐。
+
+   设计原则：
+   - 容器（.srp）完全透明，无边框、无背景、无阴影 —— 不是独立悬浮面板；
+   - 七张卡片（.srp-card）本身不透明，精确盖住原图印刷的旧卡片
+     （旧卡：宽约 158px、间距约 20px、高约 258px，一行七列）；
+   - 「奖励收集」标题、副标题、右侧宣传卡均为原图静态内容，不覆盖。
+   ========================================================== */
+
+.srp {
+  position: absolute;
+  pointer-events: auto;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* 旧卡槽区域的局部遮底层：不透明米白，仅限七张旧卡槽所在范围，
+   用于盖住卡片缝隙与边缘处透出的印刷旧内容；不覆盖上方标题与右侧宣传图 */
+.srp::before {
+  content: "";
+  position: absolute;
+  inset: -0.4% -0.2%;
+  border-radius: clamp(4px, 0.5vw, 10px);
+  background: #f6f1e4;   /* 与原图卡片区同色米白，不透明 */
+  z-index: 0;
+}
+
+/* ---- 一行七列，等宽等距 ---- */
+
+.srp-grid {
+  position: relative;
+  z-index: 1;            /* 卡片始终绘制在遮底层之上 */
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  /* 卡间距再收窄，减少缝隙（1960 宽下 ≈ 0.6vw / 12px） */
+  gap: clamp(4px, 0.6vw, 12px);
+}
+
+/* ---- 单张卡片：米白底 + 鎏金细边（同原图卡片） ---- */
+
+.srp-card {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(189, 150, 87, 0.32);
+  border-radius: clamp(4px, 0.45vw, 9px);
+  background: linear-gradient(180deg, #fdfaf4, #f1e9d7);
+  overflow: hidden;
+}
+
+.srp-card.locked {
+  background: linear-gradient(180deg, #f6f2e8, #e9e2d4);
+  border-color: rgba(120, 134, 126, 0.26);
+}
+
+/* ---- 图片区（原图约上部 62%，完整显示不裁切） ---- */
+
+.srp-figure {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: block;
+  background: linear-gradient(180deg, #fdfaf4, #f0e7d3);
+  overflow: hidden;
+}
+
+.srp-figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;      /* 完整显示服装原图：不拉伸、不变形、不裁掉主体 */
+  object-position: center 12%; /* 人物视觉上移，比例与原图卡片一致 */
+}
+
+/* 未解锁：灰度处理 */
+.srp-card.locked .srp-figure img {
+  filter: grayscale(1) contrast(0.92) brightness(0.95);
+  opacity: 0.72;
+}
+
+/* 图上角落的小锁徽章（未解锁） */
+.srp-lock {
+  position: absolute;
+  right: 4%;
+  top: 4%;
+  width: clamp(11px, 0.9vw, 16px);
+  height: clamp(11px, 0.9vw, 16px);
+  display: grid;
+  place-items: center;
+  border-radius: 3px;
+  background: rgba(85, 91, 84, 0.82);
+  color: #e9e4d6;
+}
+
+.srp-lock svg {
+  width: 52%;
+  height: 52%;
+}
+
+/* ---- 名称行（原图约 23% 高） ---- */
+
+.srp-name {
+  flex: 0 0 20%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+  font-size: clamp(10px, 1vw, 20px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  color: #24503f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.srp-card.locked .srp-name {
+  color: #7a857e;
+}
+
+/* ---- 状态标签行（原图卡底：深青绿「已解锁」/ 灰绿「未解锁」） ---- */
+
+.srp-state {
+  flex: 0 0 auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
+  margin: 0 auto clamp(2px, 0.3vw, 6px);
+  padding: 0.18em 0.7em;
+  border-radius: 999px;
+  font-family: "华文楷体", "STKaiti", "KaiTi", "楷体", "Kaiti SC", serif;
+  font-size: clamp(9px, 0.78vw, 15px);
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  white-space: nowrap;
+  background: #174f43;      /* 深青绿 */
+  color: #f3e8c9;           /* 米白 */
+}
+
+/* 第一套默认服装：以米金底 + 金边区分「当前使用」，不突兀 */
+.srp-grid .srp-card:first-child .srp-state {
+  background: #e3cd9c;
+  color: #24503f;
+  box-shadow: inset 0 0 0 1px rgba(189, 150, 87, 0.7);
+}
+
+.srp-state svg {
+  width: 0.62em;
+  height: 0.75em;
+  flex: 0 0 auto;
+}
+
+.srp-card.locked .srp-state {
+  background: #555b54;      /* 深灰绿 */
+  color: #e9e4d6;
+}
